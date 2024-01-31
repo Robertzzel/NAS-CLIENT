@@ -16,6 +16,7 @@ SOURCES += \
     messagehandler.cpp
 
 HEADERS += \
+    commands.h \
     file.h \
     filewidget.h \
     mainwindow.h \

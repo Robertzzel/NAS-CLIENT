@@ -5,6 +5,20 @@
 #include <QPixmap>
 #include <QFileDialog>
 #include <QDir>
+#include "commands.h"
+
+bool MainWindow::ServerLogin() {
+    QString stringMessage = this->username + ";" + this->password;
+    QByteArray rawMessage = stringMessage.toUtf8();
+    rawMessage.prepend(Commnad::Login);
+    this->socket.Write(rawMessage);
+
+    rawMessage = this->socket.Read();
+    if(rawMessage.size() < 1){
+        return false;
+    }
+    return rawMessage[0] == '\x00';
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,29 +31,28 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    if(!this->login()) {
+    bool loggedIn = ServerLogin();
+    if(!loggedIn) {
         qDebug() << "Cannot login";
         return;
     }
 
     QString listStringMessage = "/";
     QByteArray listRawMessage = listStringMessage.toUtf8();
-    listRawMessage.prepend('\x06');
+    listRawMessage.prepend(Commnad::ListFilesAndDirectories);
     this->socket.Write(listRawMessage);
 
     QByteArray listMessage = this->socket.Read();
-    if(listMessage[0] != '\x00'){
+    if(listMessage.size() < 1 || listMessage[0] != '\x00'){
         qDebug() << "Cannot list";
         return;
     }
-
     listMessage = listMessage.removeAt(0);
 
     QString stringMessage = QString::fromUtf8(listMessage);
     QStringList messageFiles = stringMessage.split('\x1c');
 
     this->files.clear();
-    this->files.reserve(messageFiles.length());
     for(int i = 0; i < messageFiles.length(); ++i) {
         QStringList fileAndDetails = messageFiles[i].split('\n');
         File file;
@@ -50,9 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
         file.created = fileAndDetails[4].toULongLong();
         files.append(file);
     }
-
-    this->displayFiles();
-
+    this->DisplayFiles();
 }
 
 MainWindow::~MainWindow()
@@ -89,13 +100,13 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
 
 }
 
-void MainWindow::displayFiles()
+void MainWindow::DisplayFiles()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this->ui->filesContents);
 
-    for (const File& file : files)
+    for (int i = 0; i < this->files.size(); ++i)
     {
-        FileWidget *fileWidget = new FileWidget(this->ui->filesContents, file);
+        FileWidget *fileWidget = new FileWidget(this->ui->filesContents, this->files[i]);
         connect(fileWidget, SIGNAL(clicked()), this, SLOT(fileSelected()));
         mainLayout->addWidget(fileWidget);
     }
@@ -114,16 +125,6 @@ void MainWindow::fileSelected() {
     qDebug() << fileWidget->file.name << "\n";
 }
 
-bool MainWindow::login() {
-    QString stringMessage = "Robertzzel;123456";
-    QByteArray rawMessage = stringMessage.toUtf8();
-    rawMessage.prepend('\x05');
-    this->socket.Write(rawMessage);
-
-    rawMessage = this->socket.Read();
-    return rawMessage[0] == '\x00';
-}
-
 void MainWindow::on_downloadButton_clicked()
 {
     QString directory = QFileDialog::getExistingDirectory(this, "Select one or more files to open");
@@ -133,24 +134,37 @@ void MainWindow::on_downloadButton_clicked()
     }
 
     QDir dir(directory);
-    QString filePath = dir.filePath(this->selectedFile->file.name);
+    QString filePath = dir.filePath(this->selectedFile->file.isDir ? this->selectedFile->file.name + ".zip" : this->selectedFile->file.name);
+    qDebug() << "Saving file " << filePath;
 
     QFile file(filePath);
     if(file.exists()){
+        qDebug() << "File exists" << filePath;
         return;
     }
 
     if(!file.open(QIODevice::WriteOnly)) {
+        qDebug() << "Cannot open file " << filePath;
         return;
     }
 
     QByteArray message = this->selectedFile->file.name.toUtf8();
-    message.prepend('\x01');
+    message.prepend(Commnad::DownloadFileOrDirectory);
     socket.Write(message);
 
-    socket.ReadFile(file);
+    auto msg = socket.Read();
+    if(msg[0] != '\x00') {
+        qDebug() << "Negative message at receive" << filePath;
+        return;
+    }
+
+    if(!socket.ReadFile(file)){
+        qDebug() << "Fail to receive" << filePath;
+        return;
+    }
 
     file.close();
+    this->resetConnection();
 }
 
 
@@ -163,5 +177,15 @@ void MainWindow::on_deleteButton_clicked()
 void MainWindow::on_moveButton_clicked()
 {
 
+}
+
+void MainWindow::resetConnection() {
+    this->socket.ResetConnection("127.0.0.1", 8000);
+
+    bool loggedIn = ServerLogin();
+    if(!loggedIn) {
+        qDebug() << "Cannot login";
+        return;
+    }
 }
 

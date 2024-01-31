@@ -10,15 +10,17 @@ class MessageHandler : public QObject
     Q_OBJECT
 public:
     explicit MessageHandler(QObject *parent = nullptr);
-
+    ~MessageHandler();
     bool Connect(QString, int);
     QByteArray Read();
     bool Write(QByteArray);
-    bool Write(char* message, quint64 size);
     bool ReadFile(QFile&);
     bool WriteFile(QFile&);
+    bool ResetConnection(QString, int);
 private:
     QTcpSocket socket;
+    bool waitForNBytes(quint64, int);
+    void close();
 signals:
 };
 

@@ -6,6 +6,8 @@
 class File
 {
 public:
+    // File(File&);
+    // File(const File&);
     File();
     QString name; // nume + sortare
     qint64 size; // size
