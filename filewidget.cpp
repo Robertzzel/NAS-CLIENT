@@ -29,19 +29,31 @@ FileWidget::FileWidget(QWidget *parent, File file) : QWidget{parent}
     iconLabel->setPixmap(icon);
     fileLayout->addWidget(iconLabel);
 
-    QVBoxLayout *nameAndSizeLayout = new QVBoxLayout;
     QLabel *nameLabel = new QLabel(file.name);
     QLabel *sizeLabel = new QLabel(QString::number(file.size));
-    nameAndSizeLayout->addWidget(nameLabel);
-    nameAndSizeLayout->addWidget(sizeLabel);
-    fileLayout->addLayout(nameAndSizeLayout);
+    fileLayout->addWidget(nameLabel);
+    fileLayout->addWidget(sizeLabel);
 
     this->setLayout(fileLayout);
     this->file = file;
 }
 
+FileWidget::~FileWidget() {
+    for(auto child: this->children()) {
+        delete child;
+    }
+}
+
 void FileWidget::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         emit clicked();
+    }
+}
+
+void FileWidget::mouseDoubleClickEvent( QMouseEvent * e )
+{
+    if ( e->button() == Qt::LeftButton )
+    {
+        emit doubleClicked();
     }
 }

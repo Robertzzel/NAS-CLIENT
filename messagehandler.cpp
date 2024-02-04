@@ -1,5 +1,7 @@
 #include "messagehandler.h"
 
+#define BUFFER_SIZE 4096
+
 MessageHandler::MessageHandler(QObject *parent) : QObject{parent} {}
 
 MessageHandler::~MessageHandler() {}
@@ -29,17 +31,16 @@ bool MessageHandler::Write(QByteArray message) {
 }
 
 bool MessageHandler::ReadFile(QFile &file) {
-    quint64 bufferSize = 4096;
-    char buffer[bufferSize];
-    this->waitForNBytes(bufferSize, -1);
+    char buffer[BUFFER_SIZE];
+    this->waitForNBytes(BUFFER_SIZE, -1);
     while (this->socket.bytesAvailable()) {
-        quint64 msgSize = this->socket.read(buffer, bufferSize);
+        quint64 msgSize = this->socket.read(buffer, BUFFER_SIZE);
         if(msgSize == 0){
             break;
         }
 
         file.write(buffer, msgSize);
-        this->waitForNBytes(bufferSize, -1);
+        this->waitForNBytes(BUFFER_SIZE, -1);
     }
 
     return this->socket.error() == QAbstractSocket::RemoteHostClosedError;
@@ -50,9 +51,13 @@ bool MessageHandler::WriteFile(QFile &file) {
     quint64 fileSize = static_cast<quint64>(file.size());
     out << fileSize;
 
+    char buffer[BUFFER_SIZE];
     while (!file.atEnd()) {
-        QByteArray buffer = file.readAll();
-        file.write(buffer);
+        quint64 bytesRead = file.read(buffer, BUFFER_SIZE);
+        if(bytesRead == 0){
+            break;
+        }
+        this->socket.write(buffer, bytesRead);
     }
 
     return socket.waitForBytesWritten();

@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    createdirectorydialog.cpp \
     file.cpp \
     filewidget.cpp \
     main.cpp \
@@ -17,12 +18,14 @@ SOURCES += \
 
 HEADERS += \
     commands.h \
+    createdirectorydialog.h \
     file.h \
     filewidget.h \
     mainwindow.h \
     messagehandler.h
 
 FORMS += \
+    createdirectorydialog.ui \
     mainwindow.ui
 
 # Default rules for deployment.

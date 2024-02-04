@@ -5,6 +5,7 @@
 #include "messagehandler.h"
 #include "file.h"
 #include "filewidget.h"
+#include "createdirectorydialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -20,6 +21,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void DisplayFiles();
+    void CleanLayout(QLayout* layout);
     bool ServerLogin();
 private slots:
     void on_uploadButton_clicked();
@@ -31,13 +33,22 @@ private slots:
     void on_deleteButton_clicked();
     void on_moveButton_clicked();
     void fileSelected();
+    void fileDoubleClicked();
+    void on_backButton_clicked();
+    void createDirectory(QString);
+
 private:
     Ui::MainWindow *ui;
     MessageHandler socket;
     QVector<File> files;
     FileWidget *selectedFile = nullptr;
+    QString currentPath = "/";
     QString username = "Robertzzel";
     QString password = "123456";
     void resetConnection();
+    void RedrawFiles();
+    bool UpdateFiles();
+    void disableFileActionButtons();
+    void enableFileActionButtons();
 };
 #endif // MAINWINDOW_H
