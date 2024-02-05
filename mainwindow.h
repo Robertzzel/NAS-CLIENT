@@ -6,6 +6,7 @@
 #include "file.h"
 #include "filewidget.h"
 #include "createdirectorydialog.h"
+#include "movefiledialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -36,6 +37,7 @@ private slots:
     void fileDoubleClicked();
     void on_backButton_clicked();
     void createDirectory(QString);
+    void moveFile(QString);
 
 private:
     Ui::MainWindow *ui;

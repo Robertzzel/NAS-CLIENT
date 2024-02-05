@@ -8,7 +8,7 @@
 #include "commands.h"
 
 bool MainWindow::ServerLogin() {
-    QString stringMessage = this->username + ";" + this->password;
+    QString stringMessage = this->username + ';' + this->password;
     QByteArray rawMessage = stringMessage.toUtf8();
     rawMessage.prepend(Commnad::Login);
     this->socket.Write(rawMessage);
@@ -250,7 +250,24 @@ void MainWindow::on_deleteButton_clicked()
 
 void MainWindow::on_moveButton_clicked()
 {
+    auto dialog = new moveFIleDialog(this, this->currentPath + this->selectedFile->file.name);
+    connect(dialog, SIGNAL(moveFile(QString)), this, SLOT(moveFile(QString)));
+    dialog->show();
+}
 
+void MainWindow::moveFile(QString name) {
+    QByteArray message = (this->currentPath + this->selectedFile->file.name + ";" + name).toUtf8();
+    message.prepend(Commnad::RenameFileOrDirectory);
+    socket.Write(message);
+
+    auto msg = socket.Read();
+    if(msg[0] != '\x00') {
+        qDebug() << "Could not delete file";
+        return;
+    }
+
+    this->UpdateFiles();
+    this->RedrawFiles();
 }
 
 void MainWindow::resetConnection() {

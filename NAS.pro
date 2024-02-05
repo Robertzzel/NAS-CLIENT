@@ -14,7 +14,8 @@ SOURCES += \
     filewidget.cpp \
     main.cpp \
     mainwindow.cpp \
-    messagehandler.cpp
+    messagehandler.cpp \
+    movefiledialog.cpp
 
 HEADERS += \
     commands.h \
@@ -22,11 +23,13 @@ HEADERS += \
     file.h \
     filewidget.h \
     mainwindow.h \
-    messagehandler.h
+    messagehandler.h \
+    movefiledialog.h
 
 FORMS += \
     createdirectorydialog.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    movefiledialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
