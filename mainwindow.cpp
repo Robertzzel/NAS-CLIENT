@@ -7,19 +7,6 @@
 #include <QDir>
 #include "commands.h"
 
-bool MainWindow::ServerLogin() {
-    QString stringMessage = this->username + ';' + this->password;
-    QByteArray rawMessage = stringMessage.toUtf8();
-    rawMessage.prepend(Commnad::Login);
-    this->socket.Write(rawMessage);
-
-    rawMessage = this->socket.Read();
-    if(rawMessage.size() < 1){
-        return false;
-    }
-    return rawMessage[0] == '\x00';
-}
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -31,14 +18,16 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
-    bool loggedIn = ServerLogin();
+    bool loggedIn = this->socket.Login(this->username, this->password);
     if(!loggedIn) {
         qDebug() << "Cannot login";
         return;
     }
 
-    this->UpdateFiles();
-    this->DisplayFiles();
+    this->updateFiles();
+    this->displayFiles();
+
+    //qDebug() << this->width() << " " << this->height();
 }
 
 MainWindow::~MainWindow()
@@ -65,11 +54,8 @@ void MainWindow::on_uploadButton_clicked()
         return;
     }
 
-    QByteArray message = (this->currentPath + QFileInfo(file).fileName() + ";" + QString::number(file.size())).toUtf8();
-    message.prepend(Commnad::UploadFile);
-    socket.Write(message);
-
-    auto msg = socket.Read();
+    QByteArray message = (this->currentPath + QFileInfo(file).fileName() + '\n' + QString::number(file.size())).toUtf8();
+    auto msg = socket.WriteCommandAndRead(Commnad::UploadFile, message);
     if(msg[0] != '\x00') {
         qDebug() << "Negative message at receive" << filePath;
         return;
@@ -95,34 +81,40 @@ void MainWindow::on_createDirectoryButton_clicked()
     auto dialog = new CreateDirectoryDialog(this);
     connect(dialog, SIGNAL(createDirectory(QString)), this, SLOT(createDirectory(QString)));
     dialog->show();
-
 }
 
 void MainWindow::createDirectory(QString name) {
     QByteArray message = (this->currentPath + name).toUtf8();
-    message.prepend(Commnad::CreateDirectory);
-    socket.Write(message);
-
-    auto msg = socket.Read();
-    if(msg[0] != '\x00') {
+    if(socket.WriteCommandAndRead(Commnad::CreateDirectory, message)[0] != '\x00') {
         qDebug() << "Could not create file";
         return;
     }
 
-    this->UpdateFiles();
-    this->RedrawFiles();
+    this->updateFiles();
+    this->redrawFiles();
 }
 
 
 void MainWindow::on_informationsButton_clicked()
 {
+    auto msg = QString("").toUtf8();
+    auto response = this->socket.WriteCommandAndRead(Commnad::Info, msg);
+    if(response[0] != '\x00') {
+        qDebug() << "Could display files";
+        return;
+    }
+    response = response.removeAt(0);
 
+    QDialog secondWindow(this);
+    QLabel *label = new QLabel(&secondWindow);
+    label->setText("Memory Remaining: " + QString::fromUtf8(response));
+    secondWindow.exec();
 }
 
 
 void MainWindow::on_searchButton_clicked()
 {
-    this->RedrawFiles();
+    this->redrawFiles();
 }
 
 
@@ -146,10 +138,10 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &comboBoxText)
         });
     }
 
-    this->RedrawFiles();
+    this->redrawFiles();
 }
 
-void MainWindow::DisplayFiles()
+void MainWindow::displayFiles()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this->ui->filesContents);
 
@@ -184,8 +176,9 @@ void MainWindow::fileDoubleClicked() {
     }
 
     this->currentPath += fileWidget->file.name + "/";
-    this->UpdateFiles();
-    this->RedrawFiles();
+    this->setWindowTitle("NAS - "+ this->currentPath);
+    this->updateFiles();
+    this->redrawFiles();
 }
 
 void MainWindow::on_downloadButton_clicked()
@@ -212,10 +205,7 @@ void MainWindow::on_downloadButton_clicked()
     }
 
     QByteArray message = (this->currentPath + this->selectedFile->file.name).toUtf8();
-    message.prepend(Commnad::DownloadFileOrDirectory);
-    socket.Write(message);
-
-    auto msg = socket.Read();
+    auto msg = socket.WriteCommandAndRead(Commnad::DownloadFileOrDirectory, message);
     if(msg[0] != '\x00') {
         qDebug() << "Negative message at receive" << filePath;
         return;
@@ -234,17 +224,14 @@ void MainWindow::on_downloadButton_clicked()
 void MainWindow::on_deleteButton_clicked()
 {
     QByteArray message = (this->currentPath + this->selectedFile->file.name).toUtf8();
-    message.prepend(Commnad::RemoveFileOrDirectory);
-    socket.Write(message);
-
-    auto msg = socket.Read();
+    auto msg = socket.WriteCommandAndRead(Commnad::RemoveFileOrDirectory, message);
     if(msg[0] != '\x00') {
         qDebug() << "Could not delete file";
         return;
     }
 
-    this->UpdateFiles();
-    this->RedrawFiles();
+    this->updateFiles();
+    this->redrawFiles();
 }
 
 
@@ -256,37 +243,29 @@ void MainWindow::on_moveButton_clicked()
 }
 
 void MainWindow::moveFile(QString name) {
-    QByteArray message = (this->currentPath + this->selectedFile->file.name + ";" + name).toUtf8();
-    message.prepend(Commnad::RenameFileOrDirectory);
-    socket.Write(message);
-
-    auto msg = socket.Read();
+    QByteArray message = (this->currentPath + this->selectedFile->file.name + '\n' + name).toUtf8();
+    auto msg = socket.WriteCommandAndRead(Commnad::RenameFileOrDirectory, message);
     if(msg[0] != '\x00') {
         qDebug() << "Could not delete file";
         return;
     }
 
-    this->UpdateFiles();
-    this->RedrawFiles();
+    this->updateFiles();
+    this->redrawFiles();
 }
 
 void MainWindow::resetConnection() {
     this->socket.ResetConnection("127.0.0.1", 8000);
-
-    bool loggedIn = ServerLogin();
-    if(!loggedIn) {
-        qDebug() << "Cannot login";
-        return;
-    }
+    this->socket.Login(this->username, this->password);
 }
 
-void MainWindow::CleanLayout(QLayout* layout) {
+void MainWindow::cleanLayout(QLayout* layout) {
     if (layout == NULL)
         return;
     QLayoutItem *item;
     while((item = layout->takeAt(0))) {
         if (item->layout()) {
-            CleanLayout(item->layout());
+            cleanLayout(item->layout());
             delete item->layout();
         }
         if (item->widget()) {
@@ -296,19 +275,16 @@ void MainWindow::CleanLayout(QLayout* layout) {
     }
 }
 
-void MainWindow::RedrawFiles() {
-    this->CleanLayout(this->ui->filesContents->layout());
+void MainWindow::redrawFiles() {
+    this->cleanLayout(this->ui->filesContents->layout());
     delete this->ui->filesContents->layout();
-    this->DisplayFiles();
+    this->displayFiles();
     this->disableFileActionButtons();
 }
 
-bool MainWindow::UpdateFiles() {
+bool MainWindow::updateFiles() {
     QByteArray listRawMessage = this->currentPath.toUtf8();
-    listRawMessage.prepend(Commnad::ListFilesAndDirectories);
-    this->socket.Write(listRawMessage);
-
-    QByteArray listMessage = this->socket.Read();
+    QByteArray listMessage = this->socket.WriteCommandAndRead(Commnad::ListFilesAndDirectories, listRawMessage);;
     if(listMessage.size() < 1 || listMessage[0] != '\x00'){
         qDebug() << "Cannot list";
         return false;
@@ -350,8 +326,9 @@ void MainWindow::on_backButton_clicked()
         this->currentPath += pathComponents[i] + "/";
     }
 
-    this->UpdateFiles();
-    this->RedrawFiles();
+    this->setWindowTitle("NAS - "+ this->currentPath);
+    this->updateFiles();
+    this->redrawFiles();
 }
 
 void MainWindow::enableFileActionButtons() {

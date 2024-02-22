@@ -9,7 +9,8 @@ enum Commnad
     RemoveFileOrDirectory   = '\x03',
     RenameFileOrDirectory   = '\x04',
     Login                   = '\x05',
-    ListFilesAndDirectories = '\x06'
+    ListFilesAndDirectories = '\x06',
+    Info                    = '\x07',
 };
 
 #endif // COMMANDS_H

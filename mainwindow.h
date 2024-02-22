@@ -21,9 +21,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void DisplayFiles();
-    void CleanLayout(QLayout* layout);
-    bool ServerLogin();
 private slots:
     void on_uploadButton_clicked();
     void on_createDirectoryButton_clicked();
@@ -47,10 +44,14 @@ private:
     QString currentPath = "/";
     QString username = "Robertzzel";
     QString password = "123456";
+
     void resetConnection();
-    void RedrawFiles();
-    bool UpdateFiles();
+    void redrawFiles();
+    bool updateFiles();
     void disableFileActionButtons();
     void enableFileActionButtons();
+    void displayFiles();
+    void cleanLayout(QLayout* layout);
+    bool serverLogin();
 };
 #endif // MAINWINDOW_H

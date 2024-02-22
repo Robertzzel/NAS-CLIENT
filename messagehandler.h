@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QFile>
+#include "commands.h"
 
 class MessageHandler : public QObject
 {
@@ -17,6 +18,9 @@ public:
     bool ReadFile(QFile&);
     bool WriteFile(QFile&);
     bool ResetConnection(QString, int);
+    bool Login(QString, QString);
+    bool WriteCommand(Commnad, QByteArray&);
+    QByteArray WriteCommandAndRead(Commnad, QByteArray&);
 private:
     QTcpSocket socket;
     bool waitForNBytes(quint64, int);

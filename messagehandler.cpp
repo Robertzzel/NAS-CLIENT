@@ -69,7 +69,6 @@ bool MessageHandler::waitForNBytes(quint64 size, int msecs = 3000) {
 
 void MessageHandler::close() {
     this->socket.close();
-    this->socket.waitForDisconnected(-1);
 }
 
 bool MessageHandler::ResetConnection(QString host, int port) {
@@ -79,4 +78,31 @@ bool MessageHandler::ResetConnection(QString host, int port) {
     }
     socket.connectToHost(host, port);
     return socket.waitForConnected(-1);
+}
+
+bool MessageHandler::Login(QString username, QString password){
+    QByteArray rawMessage = (username + '\n' + password).toUtf8();
+    rawMessage.prepend(Commnad::Login);
+    this->Write(rawMessage);
+
+    rawMessage = this->Read();
+    if(rawMessage.size() < 1){
+        return false;
+    }
+    return rawMessage[0] == '\x00';
+}
+
+bool MessageHandler::WriteCommand(Commnad cmd, QByteArray& msg) {
+    msg.prepend(cmd);
+    bool result = this->Write(msg);
+    msg.removeAt(0);
+    return result;
+}
+
+QByteArray MessageHandler::WriteCommandAndRead(Commnad cmd, QByteArray& msg) {
+    if(!this->WriteCommand(cmd, msg)) {
+        return QByteArray();
+    }
+
+    return this->Read();
 }
