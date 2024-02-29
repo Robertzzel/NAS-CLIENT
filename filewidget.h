@@ -17,6 +17,8 @@ protected:
 signals:
     void clicked();
     void doubleClicked();
+private:
+    inline static FileWidget* lastPressed;
 };
 
 #endif

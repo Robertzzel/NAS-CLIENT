@@ -45,6 +45,11 @@ FileWidget::~FileWidget() {
 }
 
 void FileWidget::mousePressEvent(QMouseEvent *event) {
+    if(this->lastPressed != NULL){
+        lastPressed->setStyleSheet("");
+    }
+    this->lastPressed = this;
+    this->setStyleSheet("background-color: #393f45;");
     if (event->button() == Qt::LeftButton) {
         emit clicked();
     }
