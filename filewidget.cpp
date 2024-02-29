@@ -39,12 +39,19 @@ FileWidget::FileWidget(QWidget *parent, File file) : QWidget{parent}
 }
 
 FileWidget::~FileWidget() {
+    if(this->lastPressed != NULL && this->lastPressed == this){
+        this->lastPressed = NULL;
+    }
     for(auto child: this->children()) {
         delete child;
     }
 }
 
 void FileWidget::mousePressEvent(QMouseEvent *event) {
+    if(this->lastPressed == this){
+        emit doubleClicked();
+        return;
+    }
     if(this->lastPressed != NULL){
         lastPressed->setStyleSheet("");
     }

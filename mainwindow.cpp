@@ -303,10 +303,13 @@ bool MainWindow::updateFiles() {
     }
     listMessage = listMessage.removeAt(0);
 
+    this->files.clear();
     QString stringMessage = QString::fromUtf8(listMessage);
+    if(stringMessage == ""){
+        return true;
+    }
     QStringList messageFiles = stringMessage.split('\x1c');
 
-    this->files.clear();
     for(int i = 0; i < messageFiles.length(); ++i) {
         QStringList fileAndDetails = messageFiles[i].split('\n');
         File file;
