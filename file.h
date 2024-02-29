@@ -9,11 +9,11 @@ public:
     // File(File&);
     // File(const File&);
     File();
-    QString name; // nume + sortare
-    qint64 size; // size
-    bool isDir; // clickable daca e dir
-    QString type; // poza
-    qint64 created; // sortare
+    QString name;
+    qint64 size;
+    bool isDir;
+    QString type;
+    qint64 created;
 };
 
 #endif

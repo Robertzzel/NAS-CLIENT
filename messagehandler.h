@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QFile>
+#include <QProgressBar>
 #include "commands.h"
 
 class MessageHandler : public QObject

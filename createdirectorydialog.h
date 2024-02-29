@@ -16,9 +16,7 @@ public:
     ~CreateDirectoryDialog();
 
 private slots:
-
     void on_okButton_clicked();
-
     void on_pushButton_clicked();
 
 private:
@@ -28,4 +26,4 @@ signals:
     void createDirectory(QString name);
 };
 
-#endif // CREATEDIRECTORYDIALOG_H
+#endif

@@ -19,4 +19,4 @@ signals:
     void doubleClicked();
 };
 
-#endif // FILEWIDGET_H
+#endif

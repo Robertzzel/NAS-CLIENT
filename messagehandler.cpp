@@ -32,6 +32,8 @@ bool MessageHandler::Write(QByteArray message) {
 
 bool MessageHandler::ReadFile(QFile &file) {
     char buffer[BUFFER_SIZE];
+    quint64 bytesReceived = 0;
+
     this->waitForNBytes(BUFFER_SIZE, -1);
     while (this->socket.bytesAvailable()) {
         quint64 msgSize = this->socket.read(buffer, BUFFER_SIZE);
@@ -39,6 +41,7 @@ bool MessageHandler::ReadFile(QFile &file) {
             break;
         }
 
+        bytesReceived += msgSize;
         file.write(buffer, msgSize);
         this->waitForNBytes(BUFFER_SIZE, -1);
     }

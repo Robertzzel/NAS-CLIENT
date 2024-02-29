@@ -13,4 +13,4 @@ enum Commnad
     Info                    = '\x07',
 };
 
-#endif // COMMANDS_H
+#endif

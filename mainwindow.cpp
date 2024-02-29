@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QDir>
 #include "commands.h"
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,10 +25,11 @@ MainWindow::MainWindow(QWidget *parent)
         return;
     }
 
+    this->ui->statusLabel->setVisible(false);
+    this->ui->statusLabel->setText("Downloading...");
+
     this->updateFiles();
     this->displayFiles();
-
-    //qDebug() << this->width() << " " << this->height();
 }
 
 MainWindow::~MainWindow()
@@ -61,11 +63,14 @@ void MainWindow::on_uploadButton_clicked()
         return;
     }
 
+    this->ui->statusLabel->setVisible(true);
+    this->ui->statusLabel->setText("Uploading...");
+    qApp->processEvents();
+
     if(!socket.WriteFile(file)){
         qDebug() << "Fail to send" << filePath;
         return;
     }
-
     file.close();
 
     msg = socket.Read();
@@ -73,6 +78,8 @@ void MainWindow::on_uploadButton_clicked()
         qDebug() << "Negative message at receive" << filePath;
         return;
     }
+
+    this->ui->statusLabel->setVisible(false);
 }
 
 
@@ -211,10 +218,15 @@ void MainWindow::on_downloadButton_clicked()
         return;
     }
 
+    this->ui->statusLabel->setVisible(true);
+    this->ui->statusLabel->setText("Downloading...");
+    qApp->processEvents();
+
     if(!socket.ReadFile(file)){
         qDebug() << "Fail to receive" << filePath;
         return;
     }
+    this->ui->statusLabel->setVisible(false);
 
     file.close();
     this->resetConnection();
