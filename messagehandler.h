@@ -20,8 +20,8 @@ public:
     bool WriteFile(QFile&);
     bool ResetConnection(QString, int);
     bool Login(QString, QString);
-    bool WriteCommand(Commnad, QByteArray&);
-    QByteArray WriteCommandAndRead(Commnad, QByteArray&);
+    bool WriteCommand(Command, QByteArray&);
+    QByteArray WriteCommandAndRead(Command, QByteArray&);
 private:
     QTcpSocket socket;
     bool waitForNBytes(quint64, int);

@@ -1,7 +1,7 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-enum Commnad
+enum Command
 {
     UploadFile              = '\x00',
     DownloadFileOrDirectory = '\x01',

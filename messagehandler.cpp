@@ -32,7 +32,6 @@ bool MessageHandler::Write(QByteArray message) {
 
 bool MessageHandler::ReadFile(QFile &file) {
     char buffer[BUFFER_SIZE];
-    quint64 bytesReceived = 0;
 
     this->waitForNBytes(BUFFER_SIZE, -1);
     while (this->socket.bytesAvailable()) {
@@ -41,7 +40,6 @@ bool MessageHandler::ReadFile(QFile &file) {
             break;
         }
 
-        bytesReceived += msgSize;
         file.write(buffer, msgSize);
         this->waitForNBytes(BUFFER_SIZE, -1);
     }
@@ -85,7 +83,7 @@ bool MessageHandler::ResetConnection(QString host, int port) {
 
 bool MessageHandler::Login(QString username, QString password){
     QByteArray rawMessage = (username + '\n' + password).toUtf8();
-    rawMessage.prepend(Commnad::Login);
+    rawMessage.prepend(Command::Login);
     this->Write(rawMessage);
 
     rawMessage = this->Read();
@@ -95,14 +93,14 @@ bool MessageHandler::Login(QString username, QString password){
     return rawMessage[0] == '\x00';
 }
 
-bool MessageHandler::WriteCommand(Commnad cmd, QByteArray& msg) {
+bool MessageHandler::WriteCommand(Command cmd, QByteArray& msg) {
     msg.prepend(cmd);
     bool result = this->Write(msg);
     msg.removeAt(0);
     return result;
 }
 
-QByteArray MessageHandler::WriteCommandAndRead(Commnad cmd, QByteArray& msg) {
+QByteArray MessageHandler::WriteCommandAndRead(Command cmd, QByteArray& msg) {
     if(!this->WriteCommand(cmd, msg)) {
         return QByteArray();
     }

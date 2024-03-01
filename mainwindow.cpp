@@ -57,7 +57,7 @@ void MainWindow::on_uploadButton_clicked()
     }
 
     QByteArray message = (this->currentPath + QFileInfo(file).fileName() + '\n' + QString::number(file.size())).toUtf8();
-    auto msg = socket.WriteCommandAndRead(Commnad::UploadFile, message);
+    auto msg = socket.WriteCommandAndRead(Command::UploadFile, message);
     if(msg[0] != '\x00') {
         qDebug() << "Negative message at receive" << filePath;
         return;
@@ -92,7 +92,7 @@ void MainWindow::on_createDirectoryButton_clicked()
 
 void MainWindow::createDirectory(QString name) {
     QByteArray message = (this->currentPath + name).toUtf8();
-    if(socket.WriteCommandAndRead(Commnad::CreateDirectory, message)[0] != '\x00') {
+    if(socket.WriteCommandAndRead(Command::CreateDirectory, message)[0] != '\x00') {
         qDebug() << "Could not create file";
         return;
     }
@@ -105,7 +105,7 @@ void MainWindow::createDirectory(QString name) {
 void MainWindow::on_informationsButton_clicked()
 {
     auto msg = QString("").toUtf8();
-    auto response = this->socket.WriteCommandAndRead(Commnad::Info, msg);
+    auto response = this->socket.WriteCommandAndRead(Command::Info, msg);
     if(response[0] != '\x00') {
         qDebug() << "Could display files";
         return;
@@ -212,7 +212,7 @@ void MainWindow::on_downloadButton_clicked()
     }
 
     QByteArray message = (this->currentPath + this->selectedFile->file.name).toUtf8();
-    auto msg = socket.WriteCommandAndRead(Commnad::DownloadFileOrDirectory, message);
+    auto msg = socket.WriteCommandAndRead(Command::DownloadFileOrDirectory, message);
     if(msg[0] != '\x00') {
         qDebug() << "Negative message at receive" << filePath;
         return;
@@ -236,7 +236,7 @@ void MainWindow::on_downloadButton_clicked()
 void MainWindow::on_deleteButton_clicked()
 {
     QByteArray message = (this->currentPath + this->selectedFile->file.name).toUtf8();
-    auto msg = socket.WriteCommandAndRead(Commnad::RemoveFileOrDirectory, message);
+    auto msg = socket.WriteCommandAndRead(Command::RemoveFileOrDirectory, message);
     if(msg[0] != '\x00') {
         qDebug() << "Could not delete file";
         return;
@@ -256,7 +256,7 @@ void MainWindow::on_moveButton_clicked()
 
 void MainWindow::moveFile(QString name) {
     QByteArray message = (this->currentPath + this->selectedFile->file.name + '\n' + name).toUtf8();
-    auto msg = socket.WriteCommandAndRead(Commnad::RenameFileOrDirectory, message);
+    auto msg = socket.WriteCommandAndRead(Command::RenameFileOrDirectory, message);
     if(msg[0] != '\x00') {
         qDebug() << "Could not delete file";
         return;
@@ -296,7 +296,7 @@ void MainWindow::redrawFiles() {
 
 bool MainWindow::updateFiles() {
     QByteArray listRawMessage = this->currentPath.toUtf8();
-    QByteArray listMessage = this->socket.WriteCommandAndRead(Commnad::ListFilesAndDirectories, listRawMessage);;
+    QByteArray listMessage = this->socket.WriteCommandAndRead(Command::ListFilesAndDirectories, listRawMessage);;
     if(listMessage.size() < 1 || listMessage[0] != '\x00'){
         qDebug() << "Cannot list";
         return false;
