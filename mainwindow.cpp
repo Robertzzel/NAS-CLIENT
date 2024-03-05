@@ -1,5 +1,5 @@
-#include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "mainwindow.h"
 #include <QTcpSocket>
 #include <QLabel>
 #include <QPixmap>
@@ -8,20 +8,30 @@
 #include "commands.h"
 #include <QApplication>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+void delay(uint msecs)
+{
+    QTime dieTime= QTime::currentTime().addMSecs(msecs);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    if(!this->socket.Connect("127.0.0.1", 8000)) {
+    this->username = "Robertzzel";
+    this->password = "123456";
+
+    Command* cmd = Command::GetCommand("127.0.0.1", 8000);
+    if(cmd == nullptr) {
         qDebug() << "Cannot connect\n";
+        exit(1);
         return;
     }
 
-    bool loggedIn = this->socket.Login(this->username, this->password);
-    if(!loggedIn) {
-        qDebug() << "Cannot login";
+    this->commands = std::unique_ptr<Command>(cmd);
+    if(!this->commands->Login(this->username, this->password)) {
+        exit(1);
         return;
     }
 
@@ -56,29 +66,15 @@ void MainWindow::on_uploadButton_clicked()
         return;
     }
 
-    QByteArray message = (this->currentPath + QFileInfo(file).fileName() + '\n' + QString::number(file.size())).toUtf8();
-    auto msg = socket.WriteCommandAndRead(Command::UploadFile, message);
-    if(msg[0] != '\x00') {
-        qDebug() << "Negative message at receive" << filePath;
-        return;
-    }
-
     this->ui->statusLabel->setVisible(true);
     this->ui->statusLabel->setText("Uploading...");
     qApp->processEvents();
 
-    if(!socket.WriteFile(file)){
-        qDebug() << "Fail to send" << filePath;
+    if(!this->commands->Upload(this->currentPath, file)) {
         return;
     }
+
     file.close();
-
-    msg = socket.Read();
-    if(msg[0] != '\x00') {
-        qDebug() << "Negative message at receive" << filePath;
-        return;
-    }
-
     this->ui->statusLabel->setVisible(false);
 }
 
@@ -92,8 +88,7 @@ void MainWindow::on_createDirectoryButton_clicked()
 
 void MainWindow::createDirectory(QString name) {
     QByteArray message = (this->currentPath + name).toUtf8();
-    if(socket.WriteCommandAndRead(Command::CreateDirectory, message)[0] != '\x00') {
-        qDebug() << "Could not create file";
+    if(!this->commands->CreateDirectory(message)) {
         return;
     }
 
@@ -104,17 +99,14 @@ void MainWindow::createDirectory(QString name) {
 
 void MainWindow::on_informationsButton_clicked()
 {
-    auto msg = QString("").toUtf8();
-    auto response = this->socket.WriteCommandAndRead(Command::Info, msg);
-    if(response[0] != '\x00') {
-        qDebug() << "Could display files";
+    QString res = this->commands->Info();
+    if(res == "") {
         return;
     }
-    response = response.removeAt(0);
 
     QDialog secondWindow(this);
     QLabel *label = new QLabel(&secondWindow);
-    label->setText("Memory Remaining: " + QString::fromUtf8(response));
+    label->setText("Memory Remaining: " + res);
     secondWindow.exec();
 }
 
@@ -170,10 +162,7 @@ void MainWindow::displayFiles()
 void MainWindow::fileSelected() {
     FileWidget* fileWidget = qobject_cast<FileWidget*>(sender());
     this->selectedFile = fileWidget;
-
     this->enableFileActionButtons();
-
-    qDebug() << fileWidget->file.name << "\n";
 }
 
 void MainWindow::fileDoubleClicked() {
@@ -211,36 +200,29 @@ void MainWindow::on_downloadButton_clicked()
         return;
     }
 
-    QByteArray message = (this->currentPath + this->selectedFile->file.name).toUtf8();
-    auto msg = socket.WriteCommandAndRead(Command::DownloadFileOrDirectory, message);
-    if(msg[0] != '\x00') {
-        qDebug() << "Negative message at receive" << filePath;
-        return;
-    }
-
     this->ui->statusLabel->setVisible(true);
     this->ui->statusLabel->setText("Downloading...");
     qApp->processEvents();
 
-    if(!socket.ReadFile(file)){
-        qDebug() << "Fail to receive" << filePath;
-        return;
+    bool success = this->commands->Download(this->currentPath + this->selectedFile->file.name, file);
+    if(!success) {
+        this->ui->statusLabel->setText("Error while downloading!!!");
+    } else {
+        this->ui->statusLabel->setVisible(false);
     }
-    this->ui->statusLabel->setVisible(false);
 
     file.close();
-    this->resetConnection();
 }
 
 
 void MainWindow::on_deleteButton_clicked()
 {
     QByteArray message = (this->currentPath + this->selectedFile->file.name).toUtf8();
-    auto msg = socket.WriteCommandAndRead(Command::RemoveFileOrDirectory, message);
-    if(msg[0] != '\x00') {
-        qDebug() << "Could not delete file";
+    if(!this->commands->Remove(message)) {
         return;
     }
+
+    delay(50);
 
     this->updateFiles();
     this->redrawFiles();
@@ -255,20 +237,16 @@ void MainWindow::on_moveButton_clicked()
 }
 
 void MainWindow::moveFile(QString name) {
-    QByteArray message = (this->currentPath + this->selectedFile->file.name + '\n' + name).toUtf8();
-    auto msg = socket.WriteCommandAndRead(Command::RenameFileOrDirectory, message);
-    if(msg[0] != '\x00') {
-        qDebug() << "Could not delete file";
+    QString oldFile = this->currentPath + this->selectedFile->file.name;
+    QString newFile = this->currentPath + name;
+    if(!this->commands->Rename(oldFile, newFile)) {
         return;
     }
 
+    delay(50);
+
     this->updateFiles();
     this->redrawFiles();
-}
-
-void MainWindow::resetConnection() {
-    this->socket.ResetConnection("127.0.0.1", 8000);
-    this->socket.Login(this->username, this->password);
 }
 
 void MainWindow::cleanLayout(QLayout* layout) {
@@ -295,33 +273,8 @@ void MainWindow::redrawFiles() {
 }
 
 bool MainWindow::updateFiles() {
-    QByteArray listRawMessage = this->currentPath.toUtf8();
-    QByteArray listMessage = this->socket.WriteCommandAndRead(Command::ListFilesAndDirectories, listRawMessage);;
-    if(listMessage.size() < 1 || listMessage[0] != '\x00'){
-        qDebug() << "Cannot list";
-        return false;
-    }
-    listMessage = listMessage.removeAt(0);
-
     this->files.clear();
-    QString stringMessage = QString::fromUtf8(listMessage);
-    if(stringMessage == ""){
-        return true;
-    }
-    QStringList messageFiles = stringMessage.split('\x1c');
-
-    for(int i = 0; i < messageFiles.length(); ++i) {
-        QStringList fileAndDetails = messageFiles[i].split('\n');
-        File file;
-        file.name = fileAndDetails[0];
-        file.size = fileAndDetails[1].toULongLong();
-        file.isDir = fileAndDetails[2] == "true";
-        file.type = fileAndDetails[3];
-        file.created = fileAndDetails[4].toULongLong();
-        files.append(file);
-    }
-
-    return true;
+    return this->commands->List(this->currentPath.toUtf8(), this->files);
 }
 
 void MainWindow::on_backButton_clicked()
@@ -357,4 +310,5 @@ void MainWindow::disableFileActionButtons() {
     this->ui->deleteButton->setEnabled(false);
     this->ui->moveButton->setEnabled(false);
 }
+
 

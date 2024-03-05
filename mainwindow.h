@@ -2,11 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "messagehandler.h"
 #include "file.h"
 #include "filewidget.h"
 #include "createdirectorydialog.h"
 #include "movefiledialog.h"
+#include "commands.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -38,8 +38,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    MessageHandler socket;
-    QVector<File> files;
+    std::unique_ptr<Command> commands = nullptr;
+    QList<File> files;
     FileWidget *selectedFile = nullptr;
     QString currentPath = "/";
     QString username = "Robertzzel";

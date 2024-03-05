@@ -6,9 +6,7 @@
 class File
 {
 public:
-    // File(File&);
-    // File(const File&);
-    File();
+    File() {}
     QString name;
     qint64 size;
     bool isDir;

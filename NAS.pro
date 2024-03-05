@@ -10,7 +10,6 @@ CONFIG += c++17
 
 SOURCES += \
     createdirectorydialog.cpp \
-    file.cpp \
     filewidget.cpp \
     main.cpp \
     mainwindow.cpp \

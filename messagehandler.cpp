@@ -61,7 +61,7 @@ bool MessageHandler::WriteFile(QFile &file) {
         this->socket.write(buffer, bytesRead);
     }
 
-    return socket.waitForBytesWritten();
+    return socket.waitForBytesWritten(-1);
 }
 
 bool MessageHandler::waitForNBytes(quint64 size, int msecs = 3000) {
@@ -72,38 +72,11 @@ void MessageHandler::close() {
     this->socket.close();
 }
 
-bool MessageHandler::ResetConnection(QString host, int port) {
-    if(socket.state() == QAbstractSocket::ConnectedState) {
-        socket.disconnect();
-        socket.waitForDisconnected(-1);
-    }
-    socket.connectToHost(host, port);
-    return socket.waitForConnected(-1);
-}
-
-bool MessageHandler::Login(QString username, QString password){
-    QByteArray rawMessage = (username + '\n' + password).toUtf8();
-    rawMessage.prepend(Command::Login);
-    this->Write(rawMessage);
-
-    rawMessage = this->Read();
-    if(rawMessage.size() < 1){
-        return false;
-    }
-    return rawMessage[0] == '\x00';
-}
-
-bool MessageHandler::WriteCommand(Command cmd, QByteArray& msg) {
-    msg.prepend(cmd);
-    bool result = this->Write(msg);
-    msg.removeAt(0);
-    return result;
-}
-
-QByteArray MessageHandler::WriteCommandAndRead(Command cmd, QByteArray& msg) {
-    if(!this->WriteCommand(cmd, msg)) {
-        return QByteArray();
+bool MessageHandler::Disconnect(){
+    if(socket.state() != QAbstractSocket::ConnectedState) {
+        return true;
     }
 
-    return this->Read();
+    socket.disconnectFromHost();
+    return socket.waitForDisconnected(-1);
 }

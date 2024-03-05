@@ -19,7 +19,6 @@ void CreateDirectoryDialog::on_okButton_clicked()
     accept();
 }
 
-
 void CreateDirectoryDialog::on_pushButton_clicked()
 {
     accept();
