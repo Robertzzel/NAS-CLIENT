@@ -83,7 +83,7 @@ public:
         }
 
         msg = socket.Read();
-        return msg.size() > 0 && msg[0] != '\x00';
+        return msg.size() > 0 && msg[0] == '\x00';
     }
 
     bool Download(QString fullFileName, QFile& fileToWrite){

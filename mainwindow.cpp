@@ -71,11 +71,12 @@ void MainWindow::on_uploadButton_clicked()
     qApp->processEvents();
 
     if(!this->commands->Upload(this->currentPath, file)) {
-        return;
+        this->ui->statusLabel->setText("Failed to upload...");
+    } else {
+        this->ui->statusLabel->setVisible(false);
     }
 
     file.close();
-    this->ui->statusLabel->setVisible(false);
 }
 
 

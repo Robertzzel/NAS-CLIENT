@@ -45,7 +45,6 @@ private:
     QString username = "Robertzzel";
     QString password = "123456";
 
-    void resetConnection();
     void redrawFiles();
     bool updateFiles();
     void disableFileActionButtons();
