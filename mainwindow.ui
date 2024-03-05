@@ -18,9 +18,9 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="page_1">
+      <widget class="QWidget" name="main_page">
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -165,7 +165,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_3">
+      <widget class="QWidget" name="login_page">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout_8" stretch="20,10,10,10,20">
@@ -214,7 +214,13 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="usernameLineEdit"/>
+             <widget class="QLineEdit" name="usernameLineEdit">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+             </widget>
             </item>
             <item>
              <spacer name="horizontalSpacer_3">
@@ -263,7 +269,13 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="passwordLineEdit"/>
+             <widget class="QLineEdit" name="passwordLineEdit">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+             </widget>
             </item>
             <item>
              <spacer name="horizontalSpacer_6">
@@ -340,7 +352,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_2">
+      <widget class="QWidget" name="create_directory_page">
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,10,10,0,10,10">
@@ -380,7 +392,13 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="directoryNameLineEdit"/>
+           <widget class="QLineEdit" name="directoryNameLineEdit">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+           </widget>
           </item>
           <item>
            <spacer name="verticalSpacer_3">
@@ -442,7 +460,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page">
+      <widget class="QWidget" name="rename_page">
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,10,10,0,10,10">
@@ -482,7 +500,13 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="newNameLineEdit"/>
+           <widget class="QLineEdit" name="newNameLineEdit">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+           </widget>
           </item>
           <item>
            <spacer name="verticalSpacer_6">

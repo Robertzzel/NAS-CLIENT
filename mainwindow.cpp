@@ -19,9 +19,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 {
     ui->setupUi(this);
 
-    this->username = "Robertzzel";
-    this->password = "123456";
-
     Command* cmd = Command::GetCommand("127.0.0.1", 8000);
     if(cmd == nullptr) {
         qDebug() << "Cannot connect\n";
@@ -30,16 +27,10 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     }
 
     this->commands = std::unique_ptr<Command>(cmd);
-    if(!this->commands->Login(this->username, this->password)) {
-        exit(1);
-        return;
-    }
-
     this->ui->statusLabel->setVisible(false);
     this->ui->statusLabel->setText("Downloading...");
 
-    this->updateFiles();
-    this->displayFiles();
+    this->ui->stackedWidget->setCurrentIndex(1);
 }
 
 MainWindow::~MainWindow()
@@ -79,22 +70,11 @@ void MainWindow::on_uploadButton_clicked()
     file.close();
 }
 
-
-void MainWindow::on_createDirectoryButton_clicked()
-{
-    auto dialog = new CreateDirectoryDialog(this);
-    connect(dialog, SIGNAL(createDirectory(QString)), this, SLOT(createDirectory(QString)));
-    dialog->show();
-}
-
 void MainWindow::createDirectory(QString name) {
     QByteArray message = (this->currentPath + name).toUtf8();
     if(!this->commands->CreateDirectory(message)) {
         return;
     }
-
-    this->updateFiles();
-    this->redrawFiles();
 }
 
 
@@ -157,6 +137,7 @@ void MainWindow::displayFiles()
     }
 
     mainLayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+    this->ui->filesContents->setLayout(nullptr);
     this->ui->filesContents->setLayout(mainLayout);
 }
 
@@ -229,25 +210,12 @@ void MainWindow::on_deleteButton_clicked()
     this->redrawFiles();
 }
 
-
-void MainWindow::on_moveButton_clicked()
-{
-    auto dialog = new moveFIleDialog(this, this->currentPath + this->selectedFile->file.name);
-    connect(dialog, SIGNAL(moveFile(QString)), this, SLOT(moveFile(QString)));
-    dialog->show();
-}
-
 void MainWindow::moveFile(QString name) {
     QString oldFile = this->currentPath + this->selectedFile->file.name;
     QString newFile = this->currentPath + name;
     if(!this->commands->Rename(oldFile, newFile)) {
         return;
     }
-
-    delay(50);
-
-    this->updateFiles();
-    this->redrawFiles();
 }
 
 void MainWindow::cleanLayout(QLayout* layout) {
@@ -312,4 +280,71 @@ void MainWindow::disableFileActionButtons() {
     this->ui->moveButton->setEnabled(false);
 }
 
+
+// CREATE DIRECTORY
+
+void MainWindow::on_createBtn_clicked()
+{
+    createDirectory(this->ui->directoryNameLineEdit->text());
+    this->updateFiles();
+    this->redrawFiles();
+    this->ui->stackedWidget->setCurrentIndex(0);
+}
+
+
+void MainWindow::on_cancelCreateBtn_clicked()
+{
+    this->ui->stackedWidget->setCurrentIndex(0);
+}
+
+// END CREATE DIRECTORY
+
+// RENAME
+
+void MainWindow::on_renameBtn_clicked()
+{
+    moveFile(this->ui->newNameLineEdit->text());
+    this->updateFiles();
+    this->redrawFiles();
+    this->ui->stackedWidget->setCurrentIndex(0);
+}
+
+
+void MainWindow::on_cancelRenameBtn_clicked()
+{
+    this->ui->stackedWidget->setCurrentIndex(0);
+}
+
+// END RENAME
+
+// LOGIN
+
+void MainWindow::on_loginBtn_clicked()
+{
+    this->ui->usernameLineEdit->setText("Robertzzel");
+    this->ui->passwordLineEdit->setText("123456");
+    if(!this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text())) {
+        return;
+    }
+
+    this->username = this->ui->usernameLineEdit->text();// "Robertzzel";
+    this->password = this->ui->passwordLineEdit->text();//"123456";
+
+    this->updateFiles();
+    this->redrawFiles();
+    this->ui->stackedWidget->setCurrentIndex(0);
+}
+
+// END LOGIN
+
+void MainWindow::on_createDirectoryButton_clicked()
+{
+    this->ui->stackedWidget->setCurrentIndex(2);
+}
+
+
+void MainWindow::on_moveButton_clicked()
+{
+    this->ui->stackedWidget->setCurrentIndex(3);
+}
 

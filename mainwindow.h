@@ -4,8 +4,6 @@
 #include <QMainWindow>
 #include "file.h"
 #include "filewidget.h"
-#include "createdirectorydialog.h"
-#include "movefiledialog.h"
 #include "commands.h"
 
 QT_BEGIN_NAMESPACE
@@ -23,18 +21,30 @@ public:
     ~MainWindow();
 private slots:
     void on_uploadButton_clicked();
-    void on_createDirectoryButton_clicked();
     void on_informationsButton_clicked();
     void on_searchButton_clicked();
     void on_comboBox_currentTextChanged(const QString &arg1);
     void on_downloadButton_clicked();
     void on_deleteButton_clicked();
-    void on_moveButton_clicked();
     void fileSelected();
     void fileDoubleClicked();
     void on_backButton_clicked();
     void createDirectory(QString);
     void moveFile(QString);
+
+    void on_createBtn_clicked();
+
+    void on_cancelCreateBtn_clicked();
+
+    void on_renameBtn_clicked();
+
+    void on_cancelRenameBtn_clicked();
+
+    void on_loginBtn_clicked();
+
+    void on_createDirectoryButton_clicked();
+
+    void on_moveButton_clicked();
 
 private:
     Ui::MainWindow *ui;
