@@ -18,9 +18,9 @@ private:
     static inline char LoginCommandNumber           = '\x05';
     static inline char ListCommandNumber            = '\x06';
     static inline char InfoCommandNumber            = '\x07';
-    MessageHandler socket;
     QString host, username, password;
     int port;
+    MessageHandler socket;
 
     Command(){}
 
@@ -36,6 +36,7 @@ private:
 
 
 public:
+
     static Command* GetCommand(QString host, int port){
         Command* command = new Command;
         if(!command->socket.Connect(host, port)) {

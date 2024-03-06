@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 {
     ui->setupUi(this);
 
-    Command* cmd = Command::GetCommand("127.0.0.1", 8000);
+    Command* cmd = Command::GetCommand("192.168.0.106", 8000);
     if(cmd == nullptr) {
         qDebug() << "Cannot connect\n";
         exit(1);
@@ -321,8 +321,8 @@ void MainWindow::on_cancelRenameBtn_clicked()
 
 void MainWindow::on_loginBtn_clicked()
 {
-    this->ui->usernameLineEdit->setText("Robertzzel");
-    this->ui->passwordLineEdit->setText("123456");
+    //this->ui->usernameLineEdit->setText("Robertzzel");
+    //this->ui->passwordLineEdit->setText("123456");
     if(!this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text())) {
         return;
     }

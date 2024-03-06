@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 #include <QFile>
 #include <QProgressBar>
+#include <QSslSocket>
 
 class MessageHandler : public QObject
 {
@@ -19,7 +20,7 @@ public:
     bool WriteFile(QFile&);
     bool Disconnect();
 private:
-    QTcpSocket socket;
+    QSslSocket socket;
     bool waitForNBytes(quint64, int);
     void close();
 signals:
