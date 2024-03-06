@@ -145,7 +145,7 @@ public:
         if(message.size() < 1 || message[0] != '\x00'){
             return false;
         }
-        message = message.removeAt(0);
+        message = message.remove(0, 1);
 
         QString stringMessage = QString::fromUtf8(message);
         if(stringMessage == ""){
@@ -178,7 +178,8 @@ public:
             return "";
         }
 
-        return QString::fromUtf8(msg.removeAt(0));
+        msg = msg.remove(0, 1);
+        return QString::fromUtf8(msg);
     }
 };
 
