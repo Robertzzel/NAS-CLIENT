@@ -31,7 +31,7 @@ private slots:
     void on_backButton_clicked();
     void createDirectory(QString);
     void moveFile(QString);
-
+    void resizeEvent(QResizeEvent *event);
     void on_createBtn_clicked();
 
     void on_cancelCreateBtn_clicked();

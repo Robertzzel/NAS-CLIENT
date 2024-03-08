@@ -19,6 +19,7 @@ public:
     bool ReadFile(QFile&);
     bool WriteFile(QFile&);
     bool Disconnect();
+    QString error();
 private:
     QSslSocket socket;
     bool waitForNBytes(quint64, int);

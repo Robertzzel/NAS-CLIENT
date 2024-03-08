@@ -15,22 +15,16 @@ void delay(uint msecs)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event){
+    QWidget::resizeEvent(event);
+}
+
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    Command* cmd = Command::GetCommand("192.168.0.106", 8000);
-    if(cmd == nullptr) {
-        qDebug() << "Cannot connect\n";
-        exit(1);
-        return;
-    }
-
-    this->commands = std::unique_ptr<Command>(cmd);
-    this->ui->statusLabel->setVisible(false);
-    this->ui->statusLabel->setText("Downloading...");
-
     this->ui->stackedWidget->setCurrentIndex(1);
+    this->ui->loginStatusLabel->setVisible(false);
+    this->ui->statusLabel->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -137,7 +131,6 @@ void MainWindow::displayFiles()
     }
 
     mainLayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    this->ui->filesContents->setLayout(nullptr);
     this->ui->filesContents->setLayout(mainLayout);
 }
 
@@ -321,14 +314,28 @@ void MainWindow::on_cancelRenameBtn_clicked()
 
 void MainWindow::on_loginBtn_clicked()
 {
-    //this->ui->usernameLineEdit->setText("Robertzzel");
-    //this->ui->passwordLineEdit->setText("123456");
-    if(!this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text())) {
+    QString error;
+    QString address = this->ui->serverAddressLineEdit->text();//"192.168.54.47";//
+    Command* cmd = Command::GetCommand(address, 8000, error);
+    if(cmd == nullptr) {
+        this->ui->loginStatusLabel->setVisible(true);
+        this->ui->loginStatusLabel->setText("Cannot connect to the server");
+        delay(1000);
+        this->ui->loginStatusLabel->setText(error);
         return;
     }
 
-    this->username = this->ui->usernameLineEdit->text();// "Robertzzel";
-    this->password = this->ui->passwordLineEdit->text();//"123456";
+    this->commands = std::unique_ptr<Command>(cmd);
+    //this->ui->usernameLineEdit->setText("Robertzzel");
+    //this->ui->passwordLineEdit->setText("123456");
+    if(!this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text())) {
+        this->ui->loginStatusLabel->setVisible(true);
+        this->ui->loginStatusLabel->setText("Cannot login");
+        return;
+    }
+
+    this->username = "Robertzzel";//this->ui->usernameLineEdit->text();
+    this->password = "123456"; //this->ui->passwordLineEdit->text();
 
     this->updateFiles();
     this->redrawFiles();

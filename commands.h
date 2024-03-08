@@ -37,14 +37,19 @@ private:
 
 public:
 
-    static Command* GetCommand(QString host, int port){
+    static Command* GetCommand(QString host, int port, QString &error){
         Command* command = new Command;
         if(!command->socket.Connect(host, port)) {
+            error = command->error();
             return nullptr;
         }
         command->host = host;
         command->port = port;
         return command;
+    }
+
+    QString error() {
+        return this->socket.error();
     }
 
     bool Login(QString username, QString password) {

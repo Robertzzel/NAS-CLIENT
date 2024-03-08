@@ -18,9 +18,12 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="main_page">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -168,7 +171,23 @@
       <widget class="QWidget" name="login_page">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <layout class="QVBoxLayout" name="verticalLayout_8" stretch="20,10,10,10,20">
+         <layout class="QVBoxLayout" name="verticalLayout_8" stretch="0,20,10,10,10,10,20">
+          <item>
+           <widget class="QLabel" name="loginStatusLabel">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
           <item>
            <spacer name="verticalSpacer_7">
             <property name="orientation">
@@ -181,6 +200,55 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="5,15,25,5">
+            <item>
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Server address</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="serverAddressLineEdit"/>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="5,15,25,5">
@@ -357,10 +425,10 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,10,10,0,10,10">
           <property name="leftMargin">
-           <number>100</number>
+           <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>100</number>
+           <number>0</number>
           </property>
           <item>
            <spacer name="verticalSpacer">
@@ -465,10 +533,10 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,10,10,0,10,10">
           <property name="leftMargin">
-           <number>200</number>
+           <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>200</number>
+           <number>0</number>
           </property>
           <item>
            <spacer name="verticalSpacer_4">

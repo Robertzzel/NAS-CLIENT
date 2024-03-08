@@ -75,6 +75,10 @@ void MessageHandler::close() {
     this->socket.close();
 }
 
+QString MessageHandler::error() {
+    return this->socket.errorString();
+}
+
 bool MessageHandler::Disconnect(){
     if(socket.state() != QAbstractSocket::ConnectedState) {
         return true;
