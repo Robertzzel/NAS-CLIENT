@@ -6,9 +6,14 @@
 #include<qfile.h>
 #include<QFileInfo>
 #include"file.h"
+#include<QThreadPool>
+#include"fileDownloadThread.h"
 
-class Command
+class Command: public QObject
 {
+    Q_OBJECT
+signals:
+    void statusUpdate(bool);
 private:
     static inline char UploadCommandNumber          = '\x00';
     static inline char DownloadCommandNumber        = '\x01';
@@ -21,8 +26,9 @@ private:
     QString host, username, password;
     int port;
     MessageHandler socket;
+    QThreadPool threadPool;
 
-    Command(){}
+    Command(): QObject(0) {}
 
     bool resetConnection(){
         if(!this->socket.Disconnect()){
@@ -34,6 +40,9 @@ private:
         return this->Login(this->username, this->password);
     }
 
+    void setStatus(bool status){
+        emit statusUpdate(status);
+    }
 
 public:
     static Command* GetCommand(QString host, int port, QString &error){
@@ -44,6 +53,7 @@ public:
         }
         command->host = host;
         command->port = port;
+        command->threadPool.setMaxThreadCount(2);
         return command;
     }
 
@@ -101,34 +111,38 @@ public:
         return msg.size() > 0 && msg[0] == '\x00';
     }
 
-    bool Download(QString fullFileName, QFile& fileToWrite){
-        MessageHandler downloadConnection;
-        if(!downloadConnection.Connect(this->host, this->port)){
-            return false;
-        }
+    void Download(QString fullServerFileName, QString fullClientFileName){
+        // MessageHandler downloadConnection;
+        // if(!downloadConnection.Connect(this->host, this->port)){
+        //     return false;
+        // }
 
         QByteArray message = this->DownloadCommandNumber +
             this->username.toUtf8() +
             '\n'                    +
             this->password.toUtf8() +
             '\n'                    +
-            fullFileName.toUtf8();
+            fullServerFileName.toUtf8();
 
-        if(!downloadConnection.Write(message)){
-            return false;
-        }
+        // if(!downloadConnection.Write(message)){
+        //     return false;
+        // }
 
-        message = downloadConnection.Read();
-        if(message.size() > 0 && message[0] != '\x00') {
-            return false;
-        }
+        // message = downloadConnection.Read();
+        // if(message.size() > 0 && message[0] != '\x00') {
+        //     return false;
+        // }
 
-        if(!downloadConnection.ReadFile(fileToWrite)){
-            return false;
-        }
+        // if(!downloadConnection.ReadFile(fileToWrite)){
+        //     return false;
+        // }
 
-        downloadConnection.Disconnect();
-        return true;
+        // downloadConnection.Disconnect();
+        // return true;
+
+        auto task = new FileDownloadTask(this->host, this->port, fullClientFileName, message);
+        connect(task, &FileDownloadTask::result, this, &Command::setStatus);
+        this->threadPool.start(task);
     }
 
     bool CreateDirectory(QString fullDirectoryName){
@@ -207,6 +221,8 @@ public:
         msg = msg.remove(0, 1);
         return QString::fromUtf8(msg);
     }
+
+    virtual ~Command() {};
 };
 
 #endif

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1255</width>
-    <height>665</height>
+    <width>1119</width>
+    <height>706</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,25 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QLabel" name="statusLabel">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="main_page">
        <property name="enabled">
@@ -100,27 +116,11 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>1215</width>
-               <height>502</height>
+               <width>64</width>
+               <height>16</height>
               </rect>
              </property>
             </widget>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="statusLabel">
-            <property name="font">
-             <font>
-              <pointsize>10</pointsize>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>TextLabel</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
            </widget>
           </item>
           <item>
@@ -171,23 +171,7 @@
       <widget class="QWidget" name="login_page">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <layout class="QVBoxLayout" name="verticalLayout_8" stretch="0,20,10,10,10,10,20">
-          <item>
-           <widget class="QLabel" name="loginStatusLabel">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>TextLabel</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
+         <layout class="QVBoxLayout" name="verticalLayout_8" stretch="20,10,10,10,10,20">
           <item>
            <spacer name="verticalSpacer_7">
             <property name="orientation">
@@ -233,7 +217,16 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="serverAddressLineEdit"/>
+             <widget class="QLineEdit" name="serverAddressLineEdit">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>licenta-robert-1.go.ro</string>
+              </property>
+             </widget>
             </item>
             <item>
              <spacer name="horizontalSpacer_8">

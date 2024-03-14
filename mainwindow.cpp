@@ -23,7 +23,6 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 {
     ui->setupUi(this);
     this->ui->stackedWidget->setCurrentIndex(1);
-    this->ui->loginStatusLabel->setVisible(false);
     this->ui->statusLabel->setVisible(false);
 }
 
@@ -165,29 +164,12 @@ void MainWindow::on_downloadButton_clicked()
     QString filePath = dir.filePath(this->selectedFile->file.isDir ? this->selectedFile->file.name + ".zip" : this->selectedFile->file.name);
     qDebug() << "Saving file " << filePath;
 
-    QFile file(filePath);
-    if(file.exists()){
-        qDebug() << "File exists" << filePath;
-        return;
-    }
-
-    if(!file.open(QIODevice::WriteOnly)) {
-        qDebug() << "Cannot open file " << filePath;
-        return;
-    }
-
-    this->ui->statusLabel->setVisible(true);
-    this->ui->statusLabel->setText("Downloading...");
-    qApp->processEvents();
-
-    bool success = this->commands->Download(this->currentPath + this->selectedFile->file.name, file);
-    if(!success) {
-        this->ui->statusLabel->setText("Error while downloading!!!");
-    } else {
-        this->ui->statusLabel->setVisible(false);
-    }
-
-    file.close();
+    this->commands->Download(this->currentPath + this->selectedFile->file.name, filePath);
+    // if(!success) {
+    //     this->ui->statusLabel->setText("Error while downloading!!!");
+    // } else {
+    //     this->ui->statusLabel->setVisible(false);
+    // }
 }
 
 
@@ -320,24 +302,36 @@ void MainWindow::on_loginBtn_clicked()
     QString address = this->ui->serverAddressLineEdit->text();
     Command* cmd = Command::GetCommand(address, 25555, error);
     if(cmd == nullptr) {
-        this->ui->loginStatusLabel->setVisible(true);
-        this->ui->loginStatusLabel->setText(error);
+        this->ui->statusLabel->setVisible(true);
+        this->ui->statusLabel->setText(error);
         return;
     }
 
     this->commands = std::unique_ptr<Command>(cmd);
     if(!this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text())) {
-        this->ui->loginStatusLabel->setVisible(true);
-        this->ui->loginStatusLabel->setText("Cannot login");
+        this->ui->statusLabel->setVisible(true);
+        this->ui->statusLabel->setText("Cannot login");
         return;
     }
 
-    this->username = "Robertzzel";//this->ui->usernameLineEdit->text();
-    this->password = "123456"; //this->ui->passwordLineEdit->text();
+    connect(cmd, &Command::statusUpdate, this, &MainWindow::setStatus);
+
+    this->ui->statusLabel->setVisible(false);
+    this->username = this->ui->usernameLineEdit->text();
+    this->password = this->ui->passwordLineEdit->text();
 
     this->updateFiles();
     this->redrawFiles();
     this->ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::setStatus(bool result){
+    this->ui->statusLabel->setVisible(true);
+    if(result){
+        this->ui->statusLabel->setText("File downloaded successfully");
+    } else {
+        this->ui->statusLabel->setText("File download failed");
+    }
 }
 
 // END LOGIN

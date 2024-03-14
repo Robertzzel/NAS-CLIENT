@@ -44,7 +44,7 @@ bool MessageHandler::ReadFile(QFile &file) {
 
         file.write(buffer, msgSize);
         this->waitForNBytes(BUFFER_SIZE, -1);
-    }
+    } //vezi daca arata bine pe telefon ca UI
 
     return this->socket.error() == QAbstractSocket::RemoteHostClosedError;
 }
@@ -61,9 +61,12 @@ bool MessageHandler::WriteFile(QFile &file) {
             break;
         }
         this->socket.write(buffer, bytesRead);
+        if(!socket.waitForBytesWritten(-1)){
+            return false;
+        }
     }
 
-    return socket.waitForBytesWritten(-1);
+    return true;
 }
 
 bool MessageHandler::waitForNBytes(quint64 size, int msecs = 3000) {
