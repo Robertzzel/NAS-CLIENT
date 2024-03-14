@@ -17,6 +17,7 @@ SOURCES += \
 HEADERS += \
     commands.h \
     file.h \
+    fileDownloadThread.h \
     filewidget.h \
     mainwindow.h \
     messagehandler.h

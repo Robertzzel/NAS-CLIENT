@@ -121,7 +121,8 @@ void MainWindow::displayFiles()
 
     for (int i = 0; i < this->files.size(); ++i)
     {
-        if(!this->files[i].name.contains(this->ui->filterLineEdit->text())){
+        QString fileName = this->files[i].name;
+        if(!fileName.contains(this->ui->filterLineEdit->text())){
             continue;
         }
         FileWidget *fileWidget = new FileWidget(this->ui->filesContents, this->files[i]);
@@ -315,19 +316,16 @@ void MainWindow::on_cancelRenameBtn_clicked()
 void MainWindow::on_loginBtn_clicked()
 {
     QString error;
-    QString address = this->ui->serverAddressLineEdit->text();//"192.168.54.47";//
-    Command* cmd = Command::GetCommand(address, 8000, error);
+
+    QString address = this->ui->serverAddressLineEdit->text();
+    Command* cmd = Command::GetCommand(address, 25555, error);
     if(cmd == nullptr) {
         this->ui->loginStatusLabel->setVisible(true);
-        this->ui->loginStatusLabel->setText("Cannot connect to the server");
-        delay(1000);
         this->ui->loginStatusLabel->setText(error);
         return;
     }
 
     this->commands = std::unique_ptr<Command>(cmd);
-    //this->ui->usernameLineEdit->setText("Robertzzel");
-    //this->ui->passwordLineEdit->setText("123456");
     if(!this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text())) {
         this->ui->loginStatusLabel->setVisible(true);
         this->ui->loginStatusLabel->setText("Cannot login");

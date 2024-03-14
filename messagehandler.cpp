@@ -8,7 +8,6 @@ MessageHandler::MessageHandler(QObject *parent) : QObject{parent} {}
 MessageHandler::~MessageHandler() {}
 
 bool MessageHandler::Connect(QString host, int port) {
-    //socket.setProtocol(QSsl::TlsV1_2);
     socket.connectToHostEncrypted(host, port);
     socket.ignoreSslErrors();
     return socket.waitForEncrypted(-1);

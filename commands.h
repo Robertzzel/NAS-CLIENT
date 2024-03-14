@@ -36,7 +36,6 @@ private:
 
 
 public:
-
     static Command* GetCommand(QString host, int port, QString &error){
         Command* command = new Command;
         if(!command->socket.Connect(host, port)) {
@@ -71,43 +70,65 @@ public:
     }
 
     bool Upload(QString filePrefixPath, QFile& file){
-        QByteArray message = this->UploadCommandNumber +
-            (filePrefixPath + QFileInfo(file).fileName() +
-            '\n' + QString::number(file.size())).toUtf8();
-
-        if(!socket.Write(message)){
+        MessageHandler uploadConnection;
+        if(!uploadConnection.Connect(this->host, this->port)){
             return false;
         }
 
-        QByteArray msg = socket.Read();
+        QByteArray message = this->UploadCommandNumber +
+            this->username.toUtf8() +
+            '\n' +
+            this->password.toUtf8() +
+            '\n' +
+            (filePrefixPath + QFileInfo(file).fileName() +
+            '\n' +
+            QString::number(file.size())).toUtf8();
+
+        if(!uploadConnection.Write(message)){
+            return false;
+        }
+
+        QByteArray msg = uploadConnection.Read();
         if(msg.size() > 0 && msg[0] != '\x00') {
             return false;
         }
 
-        if(!socket.WriteFile(file)){
+        if(!uploadConnection.WriteFile(file)){
             return false;
         }
 
-        msg = socket.Read();
+        msg = uploadConnection.Read();
         return msg.size() > 0 && msg[0] == '\x00';
     }
 
     bool Download(QString fullFileName, QFile& fileToWrite){
-        QByteArray message = this->DownloadCommandNumber + fullFileName.toUtf8();
-        if(!socket.Write(message)){
+        MessageHandler downloadConnection;
+        if(!downloadConnection.Connect(this->host, this->port)){
             return false;
         }
 
-        QByteArray msg = socket.Read();
-        if(msg.size() > 0 && msg[0] != '\x00') {
+        QByteArray message = this->DownloadCommandNumber +
+            this->username.toUtf8() +
+            '\n'                    +
+            this->password.toUtf8() +
+            '\n'                    +
+            fullFileName.toUtf8();
+
+        if(!downloadConnection.Write(message)){
             return false;
         }
 
-        if(!socket.ReadFile(fileToWrite)){
+        message = downloadConnection.Read();
+        if(message.size() > 0 && message[0] != '\x00') {
             return false;
         }
 
-        return this->resetConnection();
+        if(!downloadConnection.ReadFile(fileToWrite)){
+            return false;
+        }
+
+        downloadConnection.Disconnect();
+        return true;
     }
 
     bool CreateDirectory(QString fullDirectoryName){
