@@ -62,6 +62,6 @@ private:
     void displayFiles();
     void cleanLayout(QLayout* layout);
     bool serverLogin();
-    void setStatus(bool);
+    void setStatus(bool,QString);
 };
 #endif // MAINWINDOW_H

@@ -11,7 +11,7 @@ class MessageHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit MessageHandler(QObject *parent = nullptr);
+    explicit MessageHandler();
     ~MessageHandler();
     bool Connect(QString, int);
     QByteArray Read();
@@ -25,6 +25,7 @@ private:
     bool waitForNBytes(quint64, int);
     void close();
 signals:
+    void statusSet(quint64);
 };
 
 #endif // MESSAGEHANDLER_H

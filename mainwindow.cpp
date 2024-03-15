@@ -8,59 +8,19 @@
 #include "commands.h"
 #include <QApplication>
 
-void delay(uint msecs)
-{
-    QTime dieTime= QTime::currentTime().addMSecs(msecs);
-    while (QTime::currentTime() < dieTime)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-}
-
-void MainWindow::resizeEvent(QResizeEvent *event){
-    QWidget::resizeEvent(event);
-}
-
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     this->ui->stackedWidget->setCurrentIndex(1);
     this->ui->statusLabel->setVisible(false);
+    this->ui->serverAddressLineEdit->setText("127.0.0.1");
+    this->ui->usernameLineEdit->setText("Robertzzel");
+    this->ui->passwordLineEdit->setText("123456");
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::on_uploadButton_clicked()
-{
-    QString filePath = QFileDialog::getOpenFileName(this, "Select one or more files to open");
-
-    if (filePath.isEmpty()) {
-        return;
-    }
-
-    QFile file(filePath);
-    if(!file.exists()){
-        qDebug() << "File does not exist" << filePath;
-        return;
-    }
-
-    if(!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Cannot open file " << filePath;
-        return;
-    }
-
-    this->ui->statusLabel->setVisible(true);
-    this->ui->statusLabel->setText("Uploading...");
-    qApp->processEvents();
-
-    if(!this->commands->Upload(this->currentPath, file)) {
-        this->ui->statusLabel->setText("Failed to upload...");
-    } else {
-        this->ui->statusLabel->setVisible(false);
-    }
-
-    file.close();
 }
 
 void MainWindow::createDirectory(QString name) {
@@ -69,7 +29,6 @@ void MainWindow::createDirectory(QString name) {
         return;
     }
 }
-
 
 void MainWindow::on_informationsButton_clicked()
 {
@@ -162,14 +121,23 @@ void MainWindow::on_downloadButton_clicked()
 
     QDir dir(directory);
     QString filePath = dir.filePath(this->selectedFile->file.isDir ? this->selectedFile->file.name + ".zip" : this->selectedFile->file.name);
-    qDebug() << "Saving file " << filePath;
 
     this->commands->Download(this->currentPath + this->selectedFile->file.name, filePath);
-    // if(!success) {
-    //     this->ui->statusLabel->setText("Error while downloading!!!");
-    // } else {
-    //     this->ui->statusLabel->setVisible(false);
-    // }
+}
+
+void MainWindow::on_uploadButton_clicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, "Select one or more files to open");
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    QFile file(filePath);
+    if(!file.exists()){
+        return;
+    }
+
+    this->commands->Upload(this->currentPath, filePath);
 }
 
 
@@ -180,8 +148,6 @@ void MainWindow::on_deleteButton_clicked()
         return;
     }
 
-    delay(50);
-
     this->updateFiles();
     this->redrawFiles();
 }
@@ -191,22 +157,6 @@ void MainWindow::moveFile(QString name) {
     QString newFile = this->currentPath + name;
     if(!this->commands->Rename(oldFile, newFile)) {
         return;
-    }
-}
-
-void MainWindow::cleanLayout(QLayout* layout) {
-    if (layout == NULL)
-        return;
-    QLayoutItem *item;
-    while((item = layout->takeAt(0))) {
-        if (item->layout()) {
-            cleanLayout(item->layout());
-            delete item->layout();
-        }
-        if (item->widget()) {
-            delete item->widget();
-        }
-        delete item;
     }
 }
 
@@ -255,7 +205,6 @@ void MainWindow::disableFileActionButtons() {
     this->ui->deleteButton->setEnabled(false);
     this->ui->moveButton->setEnabled(false);
 }
-
 
 // CREATE DIRECTORY
 
@@ -314,7 +263,7 @@ void MainWindow::on_loginBtn_clicked()
         return;
     }
 
-    connect(cmd, &Command::statusUpdate, this, &MainWindow::setStatus);
+    connect(cmd, &Command::statusSet, this, &MainWindow::setStatus);
 
     this->ui->statusLabel->setVisible(false);
     this->username = this->ui->usernameLineEdit->text();
@@ -325,13 +274,9 @@ void MainWindow::on_loginBtn_clicked()
     this->ui->stackedWidget->setCurrentIndex(0);
 }
 
-void MainWindow::setStatus(bool result){
-    this->ui->statusLabel->setVisible(true);
-    if(result){
-        this->ui->statusLabel->setText("File downloaded successfully");
-    } else {
-        this->ui->statusLabel->setText("File download failed");
-    }
+void MainWindow::setStatus(bool enb, QString msg){
+    this->ui->statusLabel->setVisible(enb);
+    this->ui->statusLabel->setText(msg);
 }
 
 // END LOGIN
@@ -341,9 +286,27 @@ void MainWindow::on_createDirectoryButton_clicked()
     this->ui->stackedWidget->setCurrentIndex(2);
 }
 
-
 void MainWindow::on_moveButton_clicked()
 {
     this->ui->stackedWidget->setCurrentIndex(3);
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event){
+    QWidget::resizeEvent(event);
+}
+
+void MainWindow::cleanLayout(QLayout* layout) {
+    if (layout == NULL)
+        return;
+    QLayoutItem *item;
+    while((item = layout->takeAt(0))) {
+        if (item->layout()) {
+            cleanLayout(item->layout());
+            delete item->layout();
+        }
+        if (item->widget()) {
+            delete item->widget();
+        }
+        delete item;
+    }
+}
