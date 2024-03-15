@@ -10,17 +10,20 @@ CONFIG += c++17
 
 SOURCES += \
     commands.cpp \
+    downloadworker.cpp \
     filewidget.cpp \
     main.cpp \
     mainwindow.cpp \
-    messagehandler.cpp
+    messagehandler.cpp \
+    uploadworker.cpp
 
 HEADERS += \
     commands.h \
     file.h \
     filewidget.h \
     mainwindow.h \
-    messagehandler.h
+    messagehandler.h \
+    uploadworker.h
 
 FORMS += \
     mainwindow.ui

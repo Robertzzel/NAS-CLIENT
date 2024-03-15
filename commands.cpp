@@ -34,81 +34,29 @@ bool Command::Login(QString username, QString password) {
 }
 
 void Command::Upload(QString serverFileParentPath, QString fullLocalFilePath){
-    QFile file(fullLocalFilePath);
-    if(!file.exists()){
-        emit statusSet(true, "The selected file does not exists.");
-        return;
-    }
-
-    if(!file.open(QIODevice::ReadOnly)) {
-        emit statusSet(true, "Open the file for reading.");
-        return;
-    }
-
-    QByteArray message = (Command::UploadCommandNumber +
-        serverFileParentPath + QFileInfo(file).fileName() +
-        '\n' +
-        QString::number(file.size())).toUtf8();
-
-    if(!socket.Write(message)){
-        emit statusSet(true, "Cannot write to the server.");
-        return;
-    }
-
-    message = socket.Read();
-    if(message.size() > 0 && message[0] != '\x00') {
-        emit statusSet(true, "Cannot read from the server.");
-        return;
-    }
-
-    emit statusSet(true, "Upload started...");
-    if(!socket.WriteFile(file)){
-        emit statusSet(true, "Cannot write to the file.");
-        return;
-    }
-
-    message = socket.Read();
-    if(message.size() > 0 && message[0] == '\x00'){
-        emit statusSet(true, "Upload successfull.");
-    } else {
-        emit statusSet(true, "Upload failed.");
-    }
+    QThread* thread = new QThread;
+    UploadWorker* worker = new UploadWorker(serverFileParentPath, fullLocalFilePath, this);
+    worker->moveToThread(thread);
+    //connect(worker, &UploadWorker::error, this, &QThread::errorString);
+    connect(thread, &QThread::started, worker, &UploadWorker::process);
+    connect(worker, &UploadWorker::finished, thread, &QThread::quit);
+    connect(worker, &UploadWorker::finished, worker, &UploadWorker::deleteLater);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    connect(worker, &UploadWorker::statusSet, this, &Command::setStatus);
+    thread->start();
 }
 
-void Command::Download(QString fullServerFileName, QString fullClientFileName){ 
-    QByteArray message = this->DownloadCommandNumber +
-                         fullServerFileName.toUtf8();
-
-    if(!socket.Write(message)){
-        emit statusSet(true, "Cannot write to the server.");
-        return;
-    }
-
-    auto msg = socket.Read();
-    if(msg.size() > 0 && msg[0] != '\x00') {
-        emit statusSet(true, "Cannot read from the server.");
-        return;
-    }
-
-    QFile file(fullClientFileName);
-    if(file.exists()){
-        emit statusSet(true, "File already exists");
-        return;
-    }
-
-    if(!file.open(QIODevice::WriteOnly)) {
-        emit statusSet(true, "Cannot open the file.");
-        return;
-    }
-
-    emit statusSet(true, "Download stared...");
-    if(!socket.ReadFile(file)){
-        emit statusSet(true, "Error while downloading");
-        return;
-    }
-
-    this->resetConnection();
-    emit statusSet(true, "File downloaded");
+void Command::Download(QString fullServerFileName, QString fullClientFileName){
+    QThread* thread = new QThread;
+    DownloadWorker* worker = new DownloadWorker(fullServerFileName, fullClientFileName, this);
+    worker->moveToThread(thread);
+    //connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+    connect(thread, &QThread::started, worker, &DownloadWorker::process);
+    connect(worker, &DownloadWorker::finished, thread, &QThread::quit);
+    connect(worker, &DownloadWorker::finished, worker, &DownloadWorker::deleteLater);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    connect(worker, &DownloadWorker::statusSet, this, &Command::setStatus);
+    thread->start();
 }
 
 bool Command::CreateDirectory(QString fullDirectoryName){

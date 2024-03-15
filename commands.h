@@ -8,6 +8,40 @@
 #include"file.h"
 #include<QThreadPool>
 
+class Command;
+
+class DownloadWorker : public QObject {
+    Q_OBJECT
+public:
+    DownloadWorker(QString, QString, Command*);
+    ~DownloadWorker();
+    void process();
+    void setStatus(quint64);
+signals:
+    void finished();
+    void error(QString err);
+    void statusSet(bool, QString);
+private:
+    QString fullServerFileName, fullClientFileName;
+    Command* cmd;
+};
+
+class UploadWorker : public QObject{
+    Q_OBJECT
+public:
+    UploadWorker(QString, QString, Command*);
+    ~UploadWorker();
+    void process();
+    void setStatus(quint64);
+signals:
+    void finished();
+    void error(QString err);
+    void statusSet(bool enabled, QString message);
+private:
+    QString serverFileParentPath, fullLocalFilePath;
+    Command* cmd;
+};
+
 class Command: public QObject
 {
     Q_OBJECT
@@ -40,7 +74,6 @@ private:
     QThreadPool threadPool;
     Command();
     bool resetConnection();
-
     void setStatus(bool enabled, QString message);
 };
 
