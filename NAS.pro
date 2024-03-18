@@ -1,6 +1,6 @@
 QT       += core gui network
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets core core-private
 
 CONFIG += c++17
 
@@ -22,8 +22,7 @@ HEADERS += \
     file.h \
     filewidget.h \
     mainwindow.h \
-    messagehandler.h \
-    uploadworker.h
+    messagehandler.h
 
 FORMS += \
     mainwindow.ui

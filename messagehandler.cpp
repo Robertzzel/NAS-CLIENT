@@ -1,7 +1,15 @@
 #include "messagehandler.h"
 #include <qssl.h>
+#include <QCoreApplication>
 
-#define BUFFER_SIZE 1048576
+#define BUFFER_SIZE 4096
+
+void delay(uint msecs)
+{
+    QTime dieTime= QTime::currentTime().addMSecs(msecs);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+}
 
 MessageHandler::MessageHandler() : QObject{0} {}
 
@@ -17,10 +25,10 @@ QByteArray MessageHandler::Read() {
     QDataStream in(&socket);
     quint64 size;
 
-    this->waitForNBytes(8, -1);
+    this->waitForNBytes(8);
     in >> size;
 
-    this->waitForNBytes(size, -1);
+    this->waitForNBytes(size);
     return this->socket.read(size);
 }
 
@@ -34,19 +42,21 @@ bool MessageHandler::Write(QByteArray message) {
 
 bool MessageHandler::ReadFile(QFile &file) {
     char buffer[BUFFER_SIZE];
-
     quint64 bytesUploaded = 0;
-    this->waitForNBytes(BUFFER_SIZE, -1);
+
+    this->waitForNBytes(BUFFER_SIZE, 300);
     while (this->socket.bytesAvailable()) {
         quint64 msgSize = this->socket.read(buffer, BUFFER_SIZE);
         if(msgSize == 0){
             break;
         }
+
         file.write(buffer, msgSize);
-        this->waitForNBytes(BUFFER_SIZE, -1);
+        this->waitForNBytes(BUFFER_SIZE, 300);
         bytesUploaded += msgSize;
         emit statusSet(bytesUploaded);
-    } //vezi daca arata bine pe telefon ca UI
+        delay(1000);
+    }
 
     return this->socket.error() == QAbstractSocket::RemoteHostClosedError;
 }
@@ -74,9 +84,10 @@ bool MessageHandler::WriteFile(QFile &file) {
     return true;
 }
 
-bool MessageHandler::waitForNBytes(quint64 size, int msecs = 3000) {
+bool MessageHandler::waitForNBytes(quint64 size, int msecs) {
     return static_cast<quint64>(this->socket.bytesAvailable()) < size ? this->socket.waitForReadyRead(msecs) : true;
 }
+
 
 void MessageHandler::close() {
     this->socket.close();

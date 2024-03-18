@@ -22,7 +22,7 @@ public:
     QString error();
 private:
     QSslSocket socket;
-    bool waitForNBytes(quint64, int);
+    bool waitForNBytes(quint64, int msecs = 3000);
     void close();
 signals:
     void statusSet(quint64);

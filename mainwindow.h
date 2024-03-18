@@ -48,7 +48,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    std::unique_ptr<Command> commands = nullptr;
+    Command* commands = nullptr;
     QList<File> files;
     FileWidget *selectedFile = nullptr;
     QString currentPath = "/";

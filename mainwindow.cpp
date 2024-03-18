@@ -7,20 +7,51 @@
 #include <QDir>
 #include "commands.h"
 #include <QApplication>
+#ifdef Q_OS_ANDROID
+#include <QCoreApplication>
+#include <QtCore/private/qandroidextras_p.h>
+#endif
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     this->ui->stackedWidget->setCurrentIndex(1);
     this->ui->statusLabel->setVisible(false);
-    this->ui->serverAddressLineEdit->setText("127.0.0.1");
-    this->ui->usernameLineEdit->setText("Robertzzel");
+    this->ui->serverAddressLineEdit->setText("192.168.0.13");
+    this->ui->usernameLineEdit->setText("Robertzzel1");
     this->ui->passwordLineEdit->setText("123456");
+
+#ifdef Q_OS_ANDROID
+    auto r = QtAndroidPrivate::checkPermission("android.permission.READ_EXTERNAL_STORAGE").result();
+    if (r != QtAndroidPrivate::Authorized)
+    {
+        r = QtAndroidPrivate::requestPermission("android.permission.READ_EXTERNAL_STORAGE").result();
+        if (r == QtAndroidPrivate::Denied)
+            this->ui->statusLabel->setText("Permissions missing");
+    }
+    r = QtAndroidPrivate::checkPermission("android.permission.WRITE_EXTERNAL_STORAGE").result();
+    if (r != QtAndroidPrivate::Authorized)
+    {
+        r = QtAndroidPrivate::requestPermission("android.permission.WRITE_EXTERNAL_STORAGE").result();
+        if (r == QtAndroidPrivate::Denied)
+            this->ui->statusLabel->setText("Permissions missing");
+    }
+    r = QtAndroidPrivate::checkPermission("android.permission.READ_MEDIA_IMAGES").result();
+    if (r != QtAndroidPrivate::Authorized)
+    {
+        r = QtAndroidPrivate::requestPermission("android.permission.READ_MEDIA_IMAGES").result();
+        if (r == QtAndroidPrivate::Denied)
+            this->ui->statusLabel->setText("Permissions missing");
+    }
+#endif
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    if(this->commands != nullptr){
+        delete this->commands;
+    }
 }
 
 void MainWindow::createDirectory(QString name) {
@@ -249,21 +280,20 @@ void MainWindow::on_loginBtn_clicked()
     QString error;
 
     QString address = this->ui->serverAddressLineEdit->text();
-    Command* cmd = Command::GetCommand(address, 25555, error);
-    if(cmd == nullptr) {
+    this->commands = Command::GetCommand(address, 25555, error);
+    if(this->commands == nullptr) {
         this->ui->statusLabel->setVisible(true);
         this->ui->statusLabel->setText(error);
         return;
     }
 
-    this->commands = std::unique_ptr<Command>(cmd);
     if(!this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text())) {
         this->ui->statusLabel->setVisible(true);
         this->ui->statusLabel->setText("Cannot login");
         return;
     }
 
-    connect(cmd, &Command::statusSet, this, &MainWindow::setStatus);
+    connect(this->commands, &Command::statusSet, this, &MainWindow::setStatus);
 
     this->ui->statusLabel->setVisible(false);
     this->username = this->ui->usernameLineEdit->text();
