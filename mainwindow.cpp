@@ -7,6 +7,7 @@
 #include <QDir>
 #include "commands.h"
 #include <QApplication>
+#include <QScroller>
 #ifdef Q_OS_ANDROID
 #include <QCoreApplication>
 #include <QtCore/private/qandroidextras_p.h>
@@ -15,10 +16,11 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QScroller::grabGesture(this->ui->files, QScroller::LeftMouseButtonGesture);
     this->ui->stackedWidget->setCurrentIndex(1);
     this->ui->statusLabel->setVisible(false);
-    this->ui->serverAddressLineEdit->setText("192.168.0.13");
-    this->ui->usernameLineEdit->setText("Robertzzel1");
+    this->ui->serverAddressLineEdit->setText("127.0.0.1");
+    this->ui->usernameLineEdit->setText("Robertzzel");
     this->ui->passwordLineEdit->setText("123456");
 
 #ifdef Q_OS_ANDROID
@@ -280,7 +282,7 @@ void MainWindow::on_loginBtn_clicked()
     QString error;
 
     QString address = this->ui->serverAddressLineEdit->text();
-    this->commands = Command::GetCommand(address, 25555, error);
+    this->commands = Command::GetCommand(address, 8001, error);
     if(this->commands == nullptr) {
         this->ui->statusLabel->setVisible(true);
         this->ui->statusLabel->setText(error);

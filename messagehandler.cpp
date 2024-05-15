@@ -55,7 +55,6 @@ bool MessageHandler::ReadFile(QFile &file) {
         this->waitForNBytes(BUFFER_SIZE, 300);
         bytesUploaded += msgSize;
         emit statusSet(bytesUploaded);
-        delay(1000);
     }
 
     return this->socket.error() == QAbstractSocket::RemoteHostClosedError;

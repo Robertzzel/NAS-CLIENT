@@ -19,6 +19,7 @@ signals:
     void doubleClicked();
 private:
     inline static FileWidget* lastPressed;
+    QString getFileIcon(File& file);
 };
 
 #endif

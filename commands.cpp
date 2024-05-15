@@ -23,14 +23,14 @@ bool Command::Login(QString username, QString password) {
     }
 
     rawMessage = this->socket.Read();
-    if(rawMessage.size() < 1){
+    if(rawMessage.size() < 1 || rawMessage[0] != '\x00'){
         return false;
     }
 
     this->username = username;
     this->password = password;
 
-    return rawMessage[0] == '\x00';
+    return true;
 }
 
 void Command::Upload(QString serverFileParentPath, QString fullLocalFilePath){

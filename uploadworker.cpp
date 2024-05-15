@@ -1,4 +1,5 @@
 #include "commands.h"
+#include <QString>
 
 UploadWorker::UploadWorker(QString serverFileParentPath, QString fullLocalFilePath, Command* cmd): QObject{nullptr} {
     this->serverFileParentPath = serverFileParentPath;
@@ -44,8 +45,12 @@ void UploadWorker::process() {
     }
 
     message = socket.Read();
-    if(message.size() > 0 && message[0] != '\x00') {
+    if(message.size() < 1){
         emit statusSet(true, "Cannot read from the server.");
+        return;
+    }
+    if(message[0] != '\x00') {
+        emit statusSet(true, QString::fromUtf8(message.remove(0, 1)));
         return;
     }
 
@@ -55,12 +60,13 @@ void UploadWorker::process() {
         return;
     }
 
-    message = socket.Read();
-    if(message.size() > 0 && message[0] == '\x00'){
-        emit statusSet(true, "Upload successfull.");
-    } else {
-        emit statusSet(true, "Upload failed.");
-    }
+    // TODO repune codul asta, e scos doar pentru proiect CC
+    // message = socket.Read();
+    // if(message.size() > 0 && message[0] == '\x00'){
+    //     emit statusSet(true, "Upload successfull.");
+    // } else {
+    //     emit statusSet(true, "Upload failed." + socket.error());
+    // }
 }
 
 void UploadWorker::setStatus(quint64 bytes){
