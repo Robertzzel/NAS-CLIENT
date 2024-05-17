@@ -46,6 +46,10 @@ private slots:
 
     void on_moveButton_clicked();
 
+    void on_actionsButton_clicked();
+
+    void on_actionsBackButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Command* commands;

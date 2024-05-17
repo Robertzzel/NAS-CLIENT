@@ -10,6 +10,12 @@
     <height>706</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>12</pointsize>
+    <bold>true</bold>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -19,7 +25,7 @@
      <widget class="QLabel" name="statusLabel">
       <property name="font">
        <font>
-        <pointsize>10</pointsize>
+        <pointsize>12</pointsize>
         <bold>true</bold>
        </font>
       </property>
@@ -42,39 +48,39 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QPushButton" name="uploadButton">
-              <property name="text">
-               <string>UPLOAD</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="createDirectoryButton">
-              <property name="text">
-               <string>CREATE NEW DIRECTORY</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="informationsButton">
-              <property name="text">
-               <string>INFORMATIONS</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
+         <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,10,1">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
-             <widget class="QLineEdit" name="filterLineEdit"/>
+             <widget class="QLineEdit" name="filterLineEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="searchButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="text">
                <string>SEARCH</string>
               </property>
@@ -82,6 +88,18 @@
             </item>
             <item>
              <widget class="QComboBox" name="comboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
               <item>
                <property name="text">
                 <string>Created ASC</string>
@@ -117,50 +135,78 @@
                <x>0</x>
                <y>0</y>
                <width>1079</width>
-               <height>543</height>
+               <height>522</height>
               </rect>
              </property>
             </widget>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <spacer name="horizontalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="actionsButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Actions</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
             <item>
              <widget class="QPushButton" name="backButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
-               <string>BACK</string>
+               <string>Back</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="deleteButton">
-              <property name="enabled">
-               <bool>false</bool>
+             <spacer name="horizontalSpacer_11">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
-              <property name="text">
-               <string>DELETE</string>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="downloadButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>DOWNLOAD</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="moveButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>RENAME / MOVE</string>
-              </property>
-             </widget>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -221,6 +267,7 @@
               <property name="font">
                <font>
                 <pointsize>12</pointsize>
+                <bold>true</bold>
                </font>
               </property>
               <property name="text">
@@ -279,6 +326,7 @@
               <property name="font">
                <font>
                 <pointsize>12</pointsize>
+                <bold>true</bold>
                </font>
               </property>
              </widget>
@@ -334,6 +382,7 @@
               <property name="font">
                <font>
                 <pointsize>12</pointsize>
+                <bold>true</bold>
                </font>
               </property>
              </widget>
@@ -457,6 +506,7 @@
             <property name="font">
              <font>
               <pointsize>12</pointsize>
+              <bold>true</bold>
              </font>
             </property>
            </widget>
@@ -565,6 +615,7 @@
             <property name="font">
              <font>
               <pointsize>12</pointsize>
+              <bold>true</bold>
              </font>
             </property>
            </widget>
@@ -624,6 +675,159 @@
              </size>
             </property>
            </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="actions_page">
+       <layout class="QVBoxLayout" name="verticalLayout_10">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QPushButton" name="uploadButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>UPLOAD</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="downloadButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DOWNLOAD</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QPushButton" name="moveButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>RENAME/MOVE</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="createDirectoryButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>CREATE DIRECTORY</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="actionsBackButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>BACK</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="informationsButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>INFO</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="deleteButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>DELETE</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>

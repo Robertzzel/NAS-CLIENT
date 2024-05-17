@@ -285,6 +285,11 @@ void MainWindow::on_loginBtn_clicked()
 
     bool success;
     QString err = this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text(), success);
+    if(err != ""){
+        this->ui->statusLabel->setVisible(true);
+        this->ui->statusLabel->setText("Cannot conect to the server");
+        return;
+    }
     if(!success) {
         this->ui->statusLabel->setVisible(true);
         this->ui->statusLabel->setText("Cannot login, invalid credentials");
@@ -338,3 +343,15 @@ void MainWindow::cleanLayout(QLayout* layout) {
         delete item;
     }
 }
+
+void MainWindow::on_actionsButton_clicked()
+{
+    this->ui->stackedWidget->setCurrentIndex(4);
+}
+
+
+void MainWindow::on_actionsBackButton_clicked()
+{
+    this->ui->stackedWidget->setCurrentIndex(0);
+}
+

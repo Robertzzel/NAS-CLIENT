@@ -30,7 +30,7 @@ QString Command::Login(QString username, QString password, bool& success) {
     this->username = username;
     this->password = password;
     return "";
-}
+} // BACK DELETE DOWNLOAD RENAME/MOVE UPLOAD CREATE_DIR INFO
 
 void Command::Upload(QString serverFileParentPath, QString fullLocalFilePath){
     QThread* thread = new QThread;
