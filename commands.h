@@ -57,20 +57,19 @@ public:
     QString host, username, password;
     int port;
 
-    static Command* GetCommand(QString host, int port, QString &error);
+    Command(QString host, int port);
     QString error();
-    bool Login(QString username, QString password);
+    QString Login(QString username, QString password, bool& success);
     void Upload(QString serverFileParentPath, QString fullLocalFilePath);
     void Download(QString fullServerFileName, QString fullClientFileName);
-    bool CreateDirectory(QString fullDirectoryName);
-    bool Remove(QString fullFileOrDirectoryName);
-    bool Rename(QString oldFullFilepath, QString newFullFilepath);
-    bool List(QString pathToList, QList<File>& files);
-    QString Info();
+    QString CreateDirectory(QString fullDirectoryName, bool& success);
+    QString Remove(QString fullFileOrDirectoryName, bool& success);
+    QString Rename(QString oldFullFilepath, QString newFullFilepath, bool& success);
+    QString List(QString pathToList, QList<File>& files);
+    QString Info(QString& info);
 signals:
     void statusSet(bool enabled, QString message);
 private:
-    MessageHandler socket;
     QThreadPool threadPool;
     Command();
     bool resetConnection();

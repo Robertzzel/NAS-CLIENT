@@ -1,36 +1,35 @@
 #include "commands.h"
 
-Command::Command(): QObject(0) {
-
+Command::Command(QString host, int port): QObject(0) {
+    this->host = host;
+    this->port = port;
 }
 
-Command* Command::GetCommand(QString host, int port, QString &error){
-    Command* command = new Command;
-    if(!command->socket.Connect(host, port)) {
-        error = command->error();
-        return nullptr;
+QString Command::Login(QString username, QString password, bool& success) {
+    MessageHandler socket;
+    if(!socket.Connect(this->host, this->port)){
+        emit statusSet(true, "Cannot connect.");
+        return "cannot connect to the server";
     }
-    command->host = host;
-    command->port = port;
-    return command;
-}
 
-bool Command::Login(QString username, QString password) {
     QByteArray rawMessage = this->LoginCommandNumber + (username + '\n' + password).toUtf8();
-
-    if(!this->socket.Write(rawMessage)){
-        return false;
+    if(!socket.Write(rawMessage)){
+        return "cannot write to the server";
     }
 
-    rawMessage = this->socket.Read();
-    if(rawMessage.size() < 1 || rawMessage[0] != '\x00'){
-        return false;
+    rawMessage = socket.Read();
+    if(rawMessage.size() < 1){
+        return "cannot read from the server";
+    }
+
+    success = rawMessage[0] == '\x00';
+    if(!success){
+        return "";
     }
 
     this->username = username;
     this->password = password;
-
-    return true;
+    return "";
 }
 
 void Command::Upload(QString serverFileParentPath, QString fullLocalFilePath){
@@ -59,51 +58,81 @@ void Command::Download(QString fullServerFileName, QString fullClientFileName){
     thread->start();
 }
 
-bool Command::CreateDirectory(QString fullDirectoryName){
-    QByteArray message = this->CreateDirectoryCommandNumber + fullDirectoryName.toUtf8();
+QString Command::CreateDirectory(QString fullDirectoryName, bool& success){
+    MessageHandler socket;
+    if(!socket.Connect(this->host, this->port)){
+        emit statusSet(true, "Cannot connect.");
+        return "cannot connect to server";
+    }
+
+    QByteArray message = this->CreateDirectoryCommandNumber + (username + '\n' + password + '\n' + fullDirectoryName).toUtf8();
     if(!socket.Write(message)) {
-        return false;
+        return "cannort write the server";
     }
 
     message = socket.Read();
-    return message.size() > 0 && message[0] != '\x00';
+    success = message.size() > 0 && message[0] == '\x00';
+    return "";
 }
 
-bool Command::Remove(QString fullFileOrDirectoryName){
-    QByteArray message = this->RemoveCommandNumber + fullFileOrDirectoryName.toUtf8();
+QString Command::Remove(QString fullFileOrDirectoryName, bool& success){
+    MessageHandler socket;
+    if(!socket.Connect(this->host, this->port)){
+        emit statusSet(true, "Cannot connect.");
+        return "cannot connect to the server";
+    }
+
+    QByteArray message = this->RemoveCommandNumber + (username + '\n' + password + '\n' + fullFileOrDirectoryName).toUtf8();
     if(!socket.Write(message)) {
-        return false;
+        return "cannot write to the server";
     }
 
     message = socket.Read();
-    return message.size() > 0 && message[0] != '\x00';
+    success = message.size() > 0 && message[0] == '\x00';
+    return "";
 }
 
-bool Command::Rename(QString oldFullFilepath, QString newFullFilepath){
-    QByteArray message = this->RenameCommandNumber + (oldFullFilepath + '\n' + newFullFilepath).toUtf8();
+QString Command::Rename(QString oldFullFilepath, QString newFullFilepath, bool& success){
+    MessageHandler socket;
+    if(!socket.Connect(this->host, this->port)){
+        emit statusSet(true, "Cannot connect.");
+        return "cannot connect to the server";
+    }
+
+    QByteArray message = this->RenameCommandNumber + (username + '\n' + password + '\n' + oldFullFilepath + '\n' + newFullFilepath).toUtf8();
     if(!socket.Write(message)) {
-        return false;
+        return "cannot write to the server";
     }
 
     message = socket.Read();
-    return message.size() > 0 && message[0] != '\x00';
+    success = message.size() > 0 && message[0] == '\x00';
+    return "";
 }
 
-bool Command::List(QString pathToList, QList<File>& files){
-    QByteArray message = this->ListCommandNumber + pathToList.toUtf8();
-    if(!this->socket.Write(message)){
-        return false;
+QString Command::List(QString pathToList, QList<File>& files){
+    MessageHandler socket;
+    if(!socket.Connect(this->host, this->port)){
+        emit statusSet(true, "Cannot connect.");
+        return "cannot connect to the server";
+    }
+
+    QByteArray message = this->ListCommandNumber + (username + '\n' + password + '\n' + pathToList).toUtf8();
+    if(!socket.Write(message)){
+        return "cannot write the command message";
     }
 
     message = socket.Read();
-    if(message.size() < 1 || message[0] != '\x00'){
-        return false;
+    if(message.size() < 1){
+        return "cannot read the response from the server";
+    }
+    if(message[0] != '\x00'){
+        return "command failed";
     }
     message = message.remove(0, 1);
 
     QString stringMessage = QString::fromUtf8(message);
     if(stringMessage == ""){
-        return true;
+        return "";
     }
 
     QStringList messageFiles = stringMessage.split('\x1c');
@@ -118,36 +147,30 @@ bool Command::List(QString pathToList, QList<File>& files){
         files.append(file);
     }
 
-    return true;
+    return "";
 }
 
-QString Command::Info(){
-    auto msg = this->InfoCommandNumber + QString("").toUtf8();
-    if(!this->socket.Write(msg)){
-        return "";
+QString Command::Info(QString& info){
+    MessageHandler socket;
+    if(!socket.Connect(this->host, this->port)){
+        emit statusSet(true, "Cannot connect.");
+        return "Cannot connect to server";
+    }
+
+    auto msg = this->InfoCommandNumber + (username + '\n' + password).toUtf8();
+    if(!socket.Write(msg)){
+        info = "";
+        return "cannot write to the server";
     }
 
     msg = socket.Read();
     if(msg.size() > 0 && msg[0] != '\x00') {
-        return "";
+        info = "";
+        return "cannot read from the server";
     }
 
     msg = msg.remove(0, 1);
     return QString::fromUtf8(msg);
-}
-
-bool Command::resetConnection(){
-    if(!this->socket.Disconnect()){
-        return false;
-    }
-    if(!this->socket.Connect(host, port)){
-        return false;
-    }
-    return this->Login(this->username, this->password);
-}
-
-QString Command::error() {
-    return this->socket.error();
 }
 
 void Command::setStatus(bool status, QString msg){

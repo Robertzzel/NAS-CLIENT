@@ -61,12 +61,12 @@ void UploadWorker::process() {
     }
 
     // TODO repune codul asta, e scos doar pentru proiect CC
-    // message = socket.Read();
-    // if(message.size() > 0 && message[0] == '\x00'){
-    //     emit statusSet(true, "Upload successfull.");
-    // } else {
-    //     emit statusSet(true, "Upload failed." + socket.error());
-    // }
+    message = socket.Read();
+    if(message.size() > 0 && message[0] == '\x00'){
+        emit statusSet(true, "Upload successfull.");
+    } else {
+        emit statusSet(true, "Upload failed." + socket.error());
+    }
 }
 
 void UploadWorker::setStatus(quint64 bytes){

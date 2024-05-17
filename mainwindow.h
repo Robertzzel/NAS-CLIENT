@@ -48,7 +48,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Command* commands = nullptr;
+    Command* commands;
     QList<File> files;
     FileWidget *selectedFile = nullptr;
     QString currentPath = "/";

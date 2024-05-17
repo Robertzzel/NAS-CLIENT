@@ -58,21 +58,21 @@ MainWindow::~MainWindow()
 
 void MainWindow::createDirectory(QString name) {
     QByteArray message = (this->currentPath + name).toUtf8();
-    if(!this->commands->CreateDirectory(message)) {
-        return;
-    }
+    bool created;
+    QString err = this->commands->CreateDirectory(message, created);
 }
 
 void MainWindow::on_informationsButton_clicked()
 {
-    QString res = this->commands->Info();
-    if(res == "") {
+    QString info;
+    QString err = this->commands->Info(info);
+    if(err == "") {
         return;
     }
 
     QDialog secondWindow(this);
     QLabel *label = new QLabel(&secondWindow);
-    label->setText("Memory Remaining: " + res);
+    label->setText("Memory Remaining: " + info);
     secondWindow.exec();
 }
 
@@ -177,9 +177,8 @@ void MainWindow::on_uploadButton_clicked()
 void MainWindow::on_deleteButton_clicked()
 {
     QByteArray message = (this->currentPath + this->selectedFile->file.name).toUtf8();
-    if(!this->commands->Remove(message)) {
-        return;
-    }
+    bool success;
+    QString err = this->commands->Remove(message, success);
 
     this->updateFiles();
     this->redrawFiles();
@@ -187,10 +186,9 @@ void MainWindow::on_deleteButton_clicked()
 
 void MainWindow::moveFile(QString name) {
     QString oldFile = this->currentPath + this->selectedFile->file.name;
-    QString newFile = this->currentPath + name;
-    if(!this->commands->Rename(oldFile, newFile)) {
-        return;
-    }
+    QString newFile = name;
+    bool success;
+    QString err = this->commands->Rename(oldFile, newFile, success);
 }
 
 void MainWindow::redrawFiles() {
@@ -202,7 +200,8 @@ void MainWindow::redrawFiles() {
 
 bool MainWindow::updateFiles() {
     this->files.clear();
-    return this->commands->List(this->currentPath.toUtf8(), this->files);
+    QString err = this->commands->List(this->currentPath.toUtf8(), this->files);
+    return err == "";
 }
 
 void MainWindow::on_backButton_clicked()
@@ -282,16 +281,13 @@ void MainWindow::on_loginBtn_clicked()
     QString error;
 
     QString address = this->ui->serverAddressLineEdit->text();
-    this->commands = Command::GetCommand(address, 8001, error);
-    if(this->commands == nullptr) {
-        this->ui->statusLabel->setVisible(true);
-        this->ui->statusLabel->setText(error);
-        return;
-    }
+    this->commands = new Command(address, 8001);
 
-    if(!this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text())) {
+    bool success;
+    QString err = this->commands->Login(this->ui->usernameLineEdit->text(), this->ui->passwordLineEdit->text(), success);
+    if(!success) {
         this->ui->statusLabel->setVisible(true);
-        this->ui->statusLabel->setText("Cannot login");
+        this->ui->statusLabel->setText("Cannot login, invalid credentials");
         return;
     }
 
